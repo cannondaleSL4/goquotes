@@ -18,7 +18,7 @@ var token = flag.String("token", os.Getenv("TOKEN"), "your token")
 
 func UpdateFromTo(from time.Time, to time.Time) []tinkoff.Candle {
 	var arrayOfRequestData []quotes.RequestData
-	for _, element := range quotes.GetQuotes() {
+	for _, element := range quotes.GetQuotesDJ() {
 		var req quotes.RequestData
 		req.FIGI = element
 		req.From = from

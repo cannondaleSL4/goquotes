@@ -1,0 +1,81 @@
+<!doctype html>
+<link rel="stylesheet" href='../static/css/bootstrap.css'>
+<link rel="stylesheet" href='../static/css/sticky-footer.css'>
+<link rel="stylesheet" href='../static/css/carousel.css'>
+
+<script
+        src="'../static/js/myjq.js'"></script>
+<script
+        src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+<script
+        src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script
+        src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script>
+    src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
+</script>
+<script>window.jQuery || document.write('<script src="/docs/4.3/assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
+
+
+<div class="container">
+    <form method="POST">
+        <div class="card-deck mb-2 text-center">
+
+            <!--left block-->
+
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="row align-items-center h-100">
+                                <h4 class="align-self-center" >Update / Analyse {{.Instrument}}.</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                            Select instruments for upload
+                        </button>
+                        <div class="dropdown-menu">
+                            {{ range  .Instruments}}
+                                <div class="checkbox">
+                                    <label><input type="checkbox" name="instr" value="{{ . }}">{{ . }}</label>
+                                </div>
+                            {{end}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--button block-->
+
+        <div class="card-body">
+            <input type="submit" class="btn btn-info" name="form" value="{{.FormActionV.LastWeek}}">
+            <input type="submit" class="btn btn-info" name="form" value="{{.FormActionV.LastYear}}">
+            <input type="submit" class="btn btn-info" name="form" value="{{.FormActionV.For10Years}}">
+            <input type="submit" class="btn btn-info" name="form" value="{{.FormActionV.Clear}}">
+            <input type="submit" class="btn btn-info" name="form" value="{{.FormActionV.Analyse}}">
+        </div>
+
+        <div class="container" style="min-height:100% width:80%">
+
+            <div class="alert alert-warning alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<div class="row">
+    <div class="col"></div>
+</div>
+
+<footer class="footer">
+    <div class="container">
+        <span class="text-muted">Thanks for using my app.</span>
+    </div>
+</footer>

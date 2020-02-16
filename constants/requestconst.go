@@ -15,13 +15,14 @@ type RequestData struct {
 const (
 	PORT   = ":3000"
 	INDEX  = "templates/index.html"
+	DJ     = "templates/instr.html"
 	URL    = "https://api.tinkoff.ru/trading/symbols/candles"
 	FIGI   = "FIGI"
 	Ticker = "TICKER"
 	Name   = "Name"
 )
 
-var QuotesMap = []map[string]string{
+var QuotesMapDJ = []map[string]string{
 	{FIGI: "BBG000B9XRY4", Ticker: "AAPL", Name: "Apple"},
 	{FIGI: "BBG000BCSST7", Ticker: "BA", Name: "BOEING"},
 	{FIGI: "BBG000K4ND22", Ticker: "CVX", Name: "Chevron"},
@@ -320,10 +321,39 @@ var QuotesMap = []map[string]string{
 	//{FIGI: "BBG000BVV7G1", Ticker: "TXN", Name: "Texas Instruments"},
 }
 
-func GetQuotes() []string {
-	var quotes = make([]string, 0, len(QuotesMap))
-	for _, k := range QuotesMap {
+var QuotesMapRUS = []map[string]string{
+	{FIGI: "llllllAAAA", Ticker: "Rus", Name: "AppleRus"},
+	{FIGI: "llllll", Ticker: "Belarus", Name: "BOEING_Belarus"},
+}
+
+func GetQuotesDJ() []string {
+	var quotes = make([]string, 0, len(QuotesMapDJ))
+	for _, k := range QuotesMapDJ {
 		quotes = append(quotes, k[FIGI])
 	}
 	return quotes
+}
+
+func GetQuotesRus() []string {
+	var quotes = make([]string, 0, len(QuotesMapRUS))
+	for _, k := range QuotesMapRUS {
+		quotes = append(quotes, k[FIGI])
+	}
+	return quotes
+}
+
+func GetInstrNamesDJ() []string {
+	names := make([]string, 0)
+	for index, _ := range GetQuotesDJ() {
+		names = append(names, QuotesMapDJ[index]["Name"])
+	}
+	return names
+}
+
+func GetInstrNamesRUS() []string {
+	names := make([]string, 0)
+	for index, _ := range GetQuotesRus() {
+		names = append(names, QuotesMapRUS[index]["Name"])
+	}
+	return names
 }
