@@ -3,9 +3,11 @@ package request
 import (
 	"context"
 	"flag"
-	"fmt"
-	quotes "github.com/goquotes/const"
 	"log"
+
+	//"fmt"
+	quotes "github.com/goquotes/constants"
+	//"log"
 	"os"
 	"time"
 
@@ -14,80 +16,59 @@ import (
 
 var token = flag.String("token", os.Getenv("TOKEN"), "your token")
 
-func UpdateFromTo(from string, to string) []quotes.StocksFromResponse {
+func UpdateFromTo(from time.Time, to time.Time) []tinkoff.Candle {
 	var arrayOfRequestData []quotes.RequestData
 	for _, element := range quotes.GetQuotes() {
 		var req quotes.RequestData
-		req.Ticker = element
+		req.FIGI = element
 		req.From = from
 		req.To = to
-		req.Resolution = "D"
+		req.Resolution = tinkoff.CandleInterval1Hour
 		arrayOfRequestData = append(arrayOfRequestData, req)
 	}
-	return requestToServer(arrayOfRequestData)
+	resp := requestToServer(arrayOfRequestData)
+	if resp != nil && len(resp) != 0 {
+		return resp
+	}
+	return nil
 }
 
-func requestToServer(arrayOfRequestData []quotes.RequestData) []quotes.StocksFromResponse {
-	stocks := make([]quotes.StocksFromResponse, 0)
+//func requestToServer(arrayOfRequestData []quotes.RequestData) []quotes.StocksFromResponse {
+func requestToServer(arrayOfRequestData []quotes.RequestData) []tinkoff.Candle {
+	//stocks := make([]quotes.StocksFromResponse, 0)
+	stocks := make([]tinkoff.Candle, 0)
 
-	client := tinkoff.NewRestClient(*token)
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	for _, element := range arrayOfRequestData {
-		instruments, err := client.SearchInstrumentByTicker(ctx, element.Ticker)
+	for _, data := range arrayOfRequestData {
+		candles, err := makeRequest(data)
 		if err != nil {
-			log.Fatalln(err)
+			log.Printf("%+v\n", err)
+			return nil
 		}
 
-		if len(instruments) > 1 {
-			log.Fatalf("server return more one instrument %+v\n", instruments)
+		if len(candles) == 0 {
+			log.Printf("Len of the reponse array is 0 for data: %+v\n", data.From)
+			return nil
 		}
-
-		for _, instrument := range instruments {
-			fmt.Printf("{\"FIGI\":\"%+v\",\"Tiker\":\"%+v\",\"Name\":\"%+v\"},\n", instrument.FIGI, instrument.Ticker, instrument.Name)
-		}
-
-		//log.Printf("%+v\n", instruments)
-
-		ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
-		defer cancel()
+		stocks = append(stocks, candles...)
 	}
 
-	//instruments, err := client.SearchInstrumentByTicker(ctx, "NKE")
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
-	//
-	//if len(instruments) > 1 {
-	//	log.Fatalf("server return more one instrument %+v\n", instruments)
-	//}
-	//
-	//log.Printf("%+v\n", instruments)
-	//
-	//ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
-	//defer cancel()
-
-	//for _, element := range arrayOfRequestData {
-	//	convertJson, _ := json.Marshal(element)
-	//	jsonStr := []byte(convertJson)
-	//	req, err := http.NewRequest("POST", quotes.URL, bytes.NewBuffer(jsonStr))
-	//	req.Header.Set("Content-Type", "application/json")
-	//
-	//	client := &http.Client{}
-	//	resp, err := client.Do(req)
-	//	if err != nil {
-	//		panic(err)
-	//	}
-	//	defer resp.Body.Close()
-	//
-	//	body, _ := ioutil.ReadAll(resp.Body) // []byte
-	//	value := gjson.Get(string(body), "payload.candles")
-	//
-	//	json.Unmarshal([]byte(value.String()), &stocks)
-	//	for x := range stocks {
-	//		stocks[x].Code = element.Ticker
-	//	}
-	//}
 	return stocks
+}
+
+func makeRequest(requestData quotes.RequestData) ([]tinkoff.Candle, error) {
+	for i := 1; i < 10; i++ {
+		client := tinkoff.NewRestClient(*token)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		candles, err := client.Candles(ctx, requestData.From, requestData.To, requestData.Resolution, requestData.FIGI)
+
+		if err == nil {
+			return candles, err
+		} else {
+			//log.Printf("%+v\n", err)
+			log.Printf("%+v\n", i)
+			time.Sleep(30 * time.Second)
+		}
+	}
+	return nil, nil
 }

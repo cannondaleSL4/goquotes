@@ -1,6 +1,7 @@
 package controller
 
 import (
+	. "github.com/goquotes/constants"
 	clientDb "github.com/goquotes/mongodbService"
 	requestService "github.com/goquotes/request"
 	"net/http"
@@ -10,11 +11,11 @@ import (
 func RunHandler() {
 	http.HandleFunc("/", indexPage)
 	http.HandleFunc("/start", indexHandlerFunc)
-	http.HandleFunc("/reload", reloadData)
-	http.ListenAndServe(":3000", nil)
+	http.HandleFunc("/reload", updateAllData)
+	http.ListenAndServe(PORT, nil)
 }
 
-func indexPage(w http.ResponseWriter, r *http.Request){
+func indexPage(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("index"))
 }
 
@@ -22,22 +23,27 @@ func indexHandlerFunc(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("start"))
 }
 
-func reloadData(w http.ResponseWriter, r *http.Request) {
-	connection := clientDb.GetClient()
+func updateAllData(w http.ResponseWriter, r *http.Request) {
 	var years = 1
-	var arrayOfTime [] string
+	toTime := time.Now()
+	fromTime := time.Now().AddDate(-years, 0, 0)
+	diff := int(toTime.Sub(fromTime).Hours() / 24)
+	var arrayOfDate []time.Time
 
-	toTime := time.Now().Format(time.RFC3339)
-
-	for i := years; i >= 1; i-- {
-		fromTime := time.Now().AddDate(-i, 0, 0).Format(time.RFC3339)
-		arrayOfTime = append(arrayOfTime, fromTime)
+	for i := 0; i < diff; i++ {
+		arrayOfDate = append(arrayOfDate, toTime.AddDate(0, 0, -i))
 	}
 
-	arrayOfTime = append(arrayOfTime, toTime)
+	updateDataFromTo(arrayOfDate)
+}
 
-	for i := 0; i<len(arrayOfTime)-1 ;i++ {
-		entityFromServer :=	requestService.UpdateFromTo(arrayOfTime[i], arrayOfTime[i+1])
-		clientDb.InsertNewQuotes(connection, entityFromServer)
+func updateDataFromTo(dateArray []time.Time) {
+	connection := clientDb.GetClient()
+
+	for i := 1; i < len(dateArray); i++ {
+		entityFromServer := requestService.UpdateFromTo(dateArray[i], dateArray[i-1])
+		if entityFromServer != nil {
+			clientDb.InsertNewQuotes(connection, entityFromServer)
+		}
 	}
 }

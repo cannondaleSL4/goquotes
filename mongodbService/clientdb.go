@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	quotes "github.com/goquotes/const"
+	tinkoff "github.com/TinkoffCreditSystems/invest-openapi-go-sdk"
 	"log"
 	"time"
 
@@ -13,9 +13,9 @@ import (
 )
 
 var (
-	client *Client
-	mongoURL = "mongodb://127.0.0.1:27017"
-	cmd          = flag.String("cmd", "", "list or add?")
+	client     *Client
+	mongoURL   = "mongodb://127.0.0.1:27017"
+	cmd        = flag.String("cmd", "", "list or add?")
 	address    = flag.String("address", "", "mongodb address to connect to")
 	database   = flag.String("db", "", "The name of the database to connect to")
 	collection = flag.String("collection", "", "The collection (in the db) to connect to")
@@ -28,11 +28,9 @@ func GetClient() *Client {
 
 	client, err := NewClient(options.Client().ApplyURI(mongoURL))
 
-
 	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
 	err = client.Connect(ctx)
 	ctx, _ = context.WithTimeout(context.Background(), 10*time.Second)
-
 
 	if err != nil {
 		log.Fatal(err)
@@ -47,7 +45,7 @@ func GetClient() *Client {
 	return client
 }
 
-func InsertNewQuotes( client *Client, stock [] quotes.StocksFromResponse) {
+func InsertNewQuotes(client *Client, stock []tinkoff.Candle) {
 	collection := client.Database("quotes").Collection("stocks")
 
 	insertStocks := []interface{}{}
@@ -55,17 +53,16 @@ func InsertNewQuotes( client *Client, stock [] quotes.StocksFromResponse) {
 		insertStocks = append(insertStocks, t)
 	}
 
-	insetResult, err := collection.InsertMany(context.TODO(), insertStocks)
+	_, err := collection.InsertMany(context.TODO(), insertStocks)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Inserted multiple documents: ", insetResult.InsertedIDs)
+	//fmt.Println("Inserted multiple documents: ", insetResult.InsertedIDs)
 }
 
-func closeConnection()  {
+func closeConnection() {
 	err := client.Disconnect(context.TODO())
 	if err != nil {
 		log.Fatal(err)
 	}
 }
-
