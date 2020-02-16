@@ -1,82 +1,77 @@
 package request
 
 import (
-	"bytes"
-	"encoding/json"
-	quotes "github.com/goquotes/const"
+	"context"
+	"flag"
+	. "github.com/goquotes/constants"
+	"log"
+	"os"
+	"time"
 
-	"github.com/tidwall/gjson"
-	"io/ioutil"
-	"net/http"
+	tinkoff "github.com/TinkoffCreditSystems/invest-openapi-go-sdk"
 )
 
+var token = flag.String("token", os.Getenv("TOKEN"), "your token")
 
-func UpdateFromTo(from string, to string) []quotes.StocksFromResponse{
-	var arrayOfRequestData []quotes.RequestData
-	for _, element := range quotes.GetQuotes() {
-		var req quotes.RequestData
-		req.Ticker = element
-		req.From = from
-		req.To = to
-		req.Resolution = "D"
-		arrayOfRequestData = append(arrayOfRequestData, req)
-	}
-	return requestToServer(arrayOfRequestData)
-}
-
-func requestToServer(arrayOfRequestData []quotes.RequestData) []quotes.StocksFromResponse{
-	stocks := make([]quotes.StocksFromResponse,0)
-
-	for _, element := range arrayOfRequestData {
-		convertJson, _ := json.Marshal(element)
-		jsonStr := []byte(convertJson)
-		req, err := http.NewRequest("POST", quotes.URL, bytes.NewBuffer(jsonStr))
-		req.Header.Set("Content-Type", "application/json")
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-		if err != nil {
-			panic(err)
+func UpdateFromTo(timesArray []time.Time, figi string, interval tinkoff.CandleInterval) *[]tinkoff.Candle {
+	//candlesArray := make([]tinkoff.Candle,365)
+	var candlesArray []tinkoff.Candle
+	for i := 1; i < len(timesArray); i++ {
+		var req RequestData
+		req.FIGI = figi
+		req.From = timesArray[i-1]
+		req.To = timesArray[i]
+		req.Resolution = interval
+		resp := requestToServer(req)
+		if resp != nil && len(*resp) != 0 {
+			candlesArray = append(candlesArray, *resp...)
 		}
-		defer resp.Body.Close()
-
-		body, _ := ioutil.ReadAll(resp.Body) // []byte
-		value := gjson.Get(string(body), "payload.candles")
-
-		json.Unmarshal([]byte(value.String()), &stocks)
-		for x := range stocks {
-			stocks[x].Code = element.Ticker
-		}
-		//clientDb.InsertNewQuotes(connection, stocks)
 	}
-	return stocks
+	if len(candlesArray) != 0 {
+		return &candlesArray
+	}
+	return nil
 }
 
-func insertToDatabase(arrayOfRequestData []quotes.RequestData) {
-	//connection := clientDb.GetClient()
+func requestToServer(requestData RequestData) *[]tinkoff.Candle {
+	stocks := make([]tinkoff.Candle, 0)
 
-	//for _, element := range arrayOfRequestData {
-	//	convertJson, _ := json.Marshal(element)
-	//	jsonStr := []byte(convertJson)
-	//	req, err := http.NewRequest("POST", quotes.URL, bytes.NewBuffer(jsonStr))
-	//	req.Header.Set("Content-Type", "application/json")
-	//
-	//	client := &http.Client{}
-	//	resp, err := client.Do(req)
-	//	if err != nil {
-	//		panic(err)
-	//	}
-	//	defer resp.Body.Close()
-	//
-	//	body, _ := ioutil.ReadAll(resp.Body) // []byte
-	//	value := gjson.Get(string(body), "payload.candles")
-	//
-	//	stocks := make([]quotes.StocksFromResponse,0)
-	//	json.Unmarshal([]byte(value.String()), &stocks)
-	//	for x := range stocks {
-	//		stocks[x].Code = element.Ticker
-	//	}
-	//	clientDb.InsertNewQuotes(connection, stocks)
-	//}
+	candles, err := makeRequest(requestData)
+	if err != nil {
+		log.Printf("%+v\n", err)
+		return nil
+	}
+
+	if len(candles) == 0 {
+		Log.Debugf("Len of the response array is 0 for data: %+v\n", requestData.From)
+		Log.Debugf("Request for instrument %+v\n", requestData.FIGI)
+		return nil
+	}
+	stocks = append(stocks, candles...)
+
+	return &stocks
 }
 
+func makeRequest(requestData RequestData) ([]tinkoff.Candle, error) {
+	for i := 1; i < 5; i++ {
+		client := tinkoff.NewRestClient(*token)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		candles, err := client.Candles(ctx, requestData.From, requestData.To, requestData.Resolution, requestData.FIGI)
+		ctx, cancel = context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		if err == nil {
+			if len(candles) != 0 {
+				return candles, err
+			} else {
+				Log.Debugf("sleep for %d milliseconds", 500)
+				Log.Debugf("date from %+v to %+v", requestData.From, requestData.To)
+				time.Sleep(500 * time.Millisecond)
+			}
+		} else {
+			Log.Debugf("error: %s ", err)
+			Log.Debugf("sleep for %d seconds", 30)
+			time.Sleep(30 * time.Second)
+		}
+	}
+	return nil, nil
+}

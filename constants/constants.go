@@ -1,6 +1,7 @@
-package _const
+package constants
 
 import (
+	"github.com/op/go-logging"
 	"strconv"
 	"time"
 )
@@ -14,7 +15,7 @@ type StocksFromResponse struct {
 	High  float64    `json:"h"`
 	Low   float64    `json:"l"`
 	Close float64    `json:"c"`
-	Vol   float64      `json:"v"`
+	Vol   float64    `json:"v"`
 	Date  stringTime `json:"date"`
 }
 
@@ -28,3 +29,10 @@ func (j *stringTime) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+var Log = logging.MustGetLogger("main")
+
+const (
+	DOWJONES = "Dow Jones"
+	RUS      = "RUS"
+	DBNAME   = "quotes"
+)
