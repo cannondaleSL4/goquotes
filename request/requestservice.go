@@ -5,9 +5,7 @@ import (
 	"flag"
 	"log"
 
-	//"fmt"
-	quotes "github.com/goquotes/constants"
-	//"log"
+	. "github.com/goquotes/constants"
 	"os"
 	"time"
 
@@ -16,10 +14,17 @@ import (
 
 var token = flag.String("token", os.Getenv("TOKEN"), "your token")
 
-func UpdateFromTo(from time.Time, to time.Time) []tinkoff.Candle {
-	var arrayOfRequestData []quotes.RequestData
-	for _, element := range quotes.GetQuotesDJ() {
-		var req quotes.RequestData
+func UpdateFromTo(from time.Time, to time.Time, instr string) []tinkoff.Candle {
+	var quotesFIGI []string
+	switch instr {
+	case DOWJONES:
+		quotesFIGI = GetQuotesDJ()
+	case RUS:
+		quotesFIGI = GetQuotesRus()
+	}
+	var arrayOfRequestData []RequestData
+	for _, element := range quotesFIGI {
+		var req RequestData
 		req.FIGI = element
 		req.From = from
 		req.To = to
@@ -33,9 +38,7 @@ func UpdateFromTo(from time.Time, to time.Time) []tinkoff.Candle {
 	return nil
 }
 
-//func requestToServer(arrayOfRequestData []quotes.RequestData) []quotes.StocksFromResponse {
-func requestToServer(arrayOfRequestData []quotes.RequestData) []tinkoff.Candle {
-	//stocks := make([]quotes.StocksFromResponse, 0)
+func requestToServer(arrayOfRequestData []RequestData) []tinkoff.Candle {
 	stocks := make([]tinkoff.Candle, 0)
 
 	for _, data := range arrayOfRequestData {
@@ -55,7 +58,7 @@ func requestToServer(arrayOfRequestData []quotes.RequestData) []tinkoff.Candle {
 	return stocks
 }
 
-func makeRequest(requestData quotes.RequestData) ([]tinkoff.Candle, error) {
+func makeRequest(requestData RequestData) ([]tinkoff.Candle, error) {
 	for i := 1; i < 10; i++ {
 		client := tinkoff.NewRestClient(*token)
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -65,8 +68,7 @@ func makeRequest(requestData quotes.RequestData) ([]tinkoff.Candle, error) {
 		if err == nil {
 			return candles, err
 		} else {
-			//log.Printf("%+v\n", err)
-			log.Printf("%+v\n", i)
+			Log.Debugf("%+v\n", i)
 			time.Sleep(30 * time.Second)
 		}
 	}

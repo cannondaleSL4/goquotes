@@ -31,8 +31,8 @@ func (j *stringTime) UnmarshalJSON(data []byte) error {
 
 var Log = logging.MustGetLogger("main")
 
-//type CandlesForDatabase struct {
-//		tinkoff.Candle:{
-//
-//	}
-//}
+const (
+	DOWJONES = "Dow Jones"
+	RUS      = "RUS"
+	DBNAME   = "quotes"
+)

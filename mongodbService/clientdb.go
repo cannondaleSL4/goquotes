@@ -2,10 +2,11 @@ package mongodbService
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	tinkoff "github.com/TinkoffCreditSystems/invest-openapi-go-sdk"
+	"github.com/goquotes/constants"
 	"log"
+	"strings"
 	"time"
 
 	. "go.mongodb.org/mongo-driver/mongo"
@@ -13,15 +14,8 @@ import (
 )
 
 var (
-	client     *Client
-	mongoURL   = "mongodb://127.0.0.1:27017"
-	cmd        = flag.String("cmd", "", "list or add?")
-	address    = flag.String("address", "", "mongodb address to connect to")
-	database   = flag.String("db", "", "The name of the database to connect to")
-	collection = flag.String("collection", "", "The collection (in the db) to connect to")
-	key        = flag.String("field", "", "The field you'd like to place an index on")
-	unique     = flag.Bool("unique", false, "Would you like the index to be unique?")
-	value      = flag.Int("type", 1, "would you like the index to be ascending (1) or descending (-1)?")
+	client   *Client
+	mongoURL = "mongodb://127.0.0.1:27017"
 )
 
 func GetClient() *Client {
@@ -45,8 +39,34 @@ func GetClient() *Client {
 	return client
 }
 
+func InsertConst(client *Client) {
+	djDbNameLower := strings.ToLower(strings.Replace(constants.DOWJONES, " ", "", -1))
+
+	collection := client.Database(constants.DBNAME).Collection(djDbNameLower)
+	collection.Drop(context.TODO())
+
+	for _, l := range constants.QuotesMapDJ {
+		_, err := collection.InsertOne(context.TODO(), l)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	rusDbNameLower := strings.ToLower(strings.Replace(constants.RUS, " ", "", -1))
+
+	collectionRus := client.Database(constants.DBNAME).Collection(rusDbNameLower)
+	collectionRus.Drop(context.TODO())
+
+	for _, l := range constants.QuotesMapRUS {
+		_, err := collectionRus.InsertOne(context.TODO(), l)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
 func InsertNewQuotes(client *Client, stock []tinkoff.Candle) {
-	collection := client.Database("quotes").Collection("stocks")
+	collection := client.Database(constants.DBNAME).Collection("stocks")
 
 	insertStocks := []interface{}{}
 	for _, t := range stock {
@@ -57,7 +77,6 @@ func InsertNewQuotes(client *Client, stock []tinkoff.Candle) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	//fmt.Println("Inserted multiple documents: ", insetResult.InsertedIDs)
 }
 
 func closeConnection() {

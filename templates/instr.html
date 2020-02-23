@@ -18,7 +18,7 @@
 
 
 <div class="container">
-    <form method="POST">
+    <form method="POST" action="">
         <div class="card-deck mb-2 text-center">
 
             <!--left block-->
@@ -53,11 +53,11 @@
         <!--button block-->
 
         <div class="card-body">
-            <input type="submit" class="btn btn-info" name="form" value="{{.FormActionV.LastWeek}}">
-            <input type="submit" class="btn btn-info" name="form" value="{{.FormActionV.LastYear}}">
-            <input type="submit" class="btn btn-info" name="form" value="{{.FormActionV.For10Years}}">
-            <input type="submit" class="btn btn-info" name="form" value="{{.FormActionV.Clear}}">
-            <input type="submit" class="btn btn-info" name="form" value="{{.FormActionV.Analyse}}">
+            <input type="submit" class="btn btn-info" name="{{.FormActionV.LastWeek}}" value="{{.FormActionV.LastWeek}}" />
+            <input type="submit" class="btn btn-info" name="{{.FormActionV.LastYear}}" value="{{.FormActionV.LastYear}}" />
+            <input type="submit" class="btn btn-info" name="{{.FormActionV.For10Years}}" value="{{.FormActionV.For10Years}}" />
+            <input type="submit" class="btn btn-info" name="{{.FormActionV.Clear}}" value="{{.FormActionV.Clear}}" />
+            <input type="submit" class="btn btn-info" name="{{.FormActionV.Analyse}}" value="{{.FormActionV.Analyse}}" />
         </div>
 
         <div class="container" style="min-height:100% width:80%">
