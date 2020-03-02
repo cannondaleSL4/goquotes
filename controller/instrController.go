@@ -13,11 +13,12 @@ import (
 )
 
 type FormAction struct {
-	LastWeek, LastYear, For10Years, Clear, Analyse string
+	LastWeek, LastMonth, LastYear, For10Years, Clear, Analyse string
 }
 
 var FormActionVar = FormAction{
 	LastWeek:   "Last week",
+	LastMonth:  "Last month",
 	LastYear:   "Last year",
 	For10Years: "For 10 years",
 	Clear:      "Clear",
@@ -81,6 +82,9 @@ func parseForm(r *http.Request, instr string) {
 	if r.FormValue(FormActionVar.LastWeek) != "" {
 		fromTime := time.Now().AddDate(0, 0, -7)
 		updateData(fromTime, instr)
+	} else if r.FormValue(FormActionVar.LastMonth) != "" {
+		fromTime := time.Now().AddDate(0, -1, 0)
+		updateData(fromTime, instr)
 	} else if r.FormValue(FormActionVar.LastYear) != "" {
 		fromTime := time.Now().AddDate(-1, 0, 0)
 		updateData(fromTime, instr)
@@ -96,6 +100,7 @@ func parseForm(r *http.Request, instr string) {
 
 func updateData(fromTime time.Time, instr string) {
 	toTime := time.Now()
+	toTime = roundOfTheDate(toTime)
 	diff := int(toTime.Sub(fromTime).Hours() / 24)
 	var arrayOfDate []time.Time
 
@@ -103,16 +108,30 @@ func updateData(fromTime time.Time, instr string) {
 		arrayOfDate = append(arrayOfDate, toTime.AddDate(0, 0, -i))
 	}
 	updateDataFromTo(arrayOfDate, instr)
-	Log.Debugf("Request for update %s from %s to %s")
+	Log.Debugf("Request for update %s from %s to %s", instr, fromTime, toTime)
 }
 
 func updateDataFromTo(dateArray []time.Time, instr string) {
 	connection := clientDb.GetClient()
 	clientDb.InsertConst(connection)
 	for i := 1; i < len(dateArray); i++ {
-		entityFromServer := requestService.UpdateFromTo(dateArray[i], dateArray[i-1], instr)
-		if entityFromServer != nil {
-			clientDb.InsertNewQuotes(connection, entityFromServer)
+		if checkWeekEnd(dateArray[i], dateArray[i-1]) {
+			entityFromServer := requestService.UpdateFromTo(dateArray[i], dateArray[i-1], instr)
+			if entityFromServer != nil {
+				clientDb.InsertNewQuotes(connection, entityFromServer)
+			}
 		}
 	}
+}
+
+func roundOfTheDate(t time.Time) time.Time {
+	year, month, day := t.Date()
+	return time.Date(year, month, day, 0, 0, 0, 0, t.Location())
+}
+
+func checkWeekEnd(from time.Time, to time.Time) bool {
+	if (from.Weekday() != 6 && to.Weekday() != 0) && (from.Weekday() != 0 && to.Weekday() != 1) {
+		return true
+	}
+	return false
 }

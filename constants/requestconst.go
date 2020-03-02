@@ -16,7 +16,6 @@ const (
 	PORT        = ":3000"
 	INDEX       = "templates/index.html"
 	INSTRUMENTS = "templates/instr.html"
-	URL         = "https://api.tinkoff.ru/trading/symbols/candles"
 	FIGI        = "FIGI"
 	Ticker      = "TICKER"
 	Name        = "Name"

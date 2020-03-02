@@ -5,6 +5,7 @@ import (
 	"fmt"
 	tinkoff "github.com/TinkoffCreditSystems/invest-openapi-go-sdk"
 	"github.com/goquotes/constants"
+	"go.mongodb.org/mongo-driver/bson"
 	"log"
 	"strings"
 	"time"
@@ -73,10 +74,50 @@ func InsertNewQuotes(client *Client, stock []tinkoff.Candle) {
 		insertStocks = append(insertStocks, t)
 	}
 
-	_, err := collection.InsertMany(context.TODO(), insertStocks)
+	_, err := collection.InsertMany(context.TODO(), insertStocks, options.InsertMany().SetOrdered(false))
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func getQuotes(client *Client, figi string, num_limit int64) {
+	collection := client.Database(constants.DBNAME).Collection("stocks")
+
+	findOptions := options.Find()
+	findOptions.SetLimit(num_limit)
+	findOptions.SetSort(map[string]int{"ts": 1})
+
+	filter := bson.M{
+		"ts": bson.M{
+			"$gte": time.Now().AddDate(0, 0, int(-num_limit)).UTC(),
+		},
+		"figi": figi,
+	}
+
+	var results []*tinkoff.Candle
+
+	cur, err := collection.Find(context.TODO(), filter, findOptions)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for cur.Next(context.TODO()) {
+		var elem tinkoff.Candle
+		err := cur.Decode(&elem)
+		if err != nil {
+			log.Fatal(err)
+		}
+		results = append(results, &elem)
+	}
+
+	if err := cur.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	cur.Close(context.TODO())
+
+	fmt.Println()
 }
 
 func closeConnection() {

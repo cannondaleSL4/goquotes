@@ -11,6 +11,7 @@ import (
 )
 
 type AnalyzeRequest struct {
+	Interval   string `json:interval`
 	Period     string `json:"period"`
 	Indicator  string `json:"indicator"`
 	Instrument string `json:"instrument"`
@@ -20,6 +21,7 @@ func GetAnalyse() {
 	url := "http://localhost:5000/hello"
 
 	analyseRequest := &AnalyzeRequest{
+		Interval:   "14",
 		Period:     "day",
 		Indicator:  "rsi",
 		Instrument: strings.ToLower(strings.Replace(DOWJONES, " ", "", -1)),
