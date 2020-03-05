@@ -74,10 +74,7 @@ func InsertNewQuotes(client *Client, stock []tinkoff.Candle) {
 		insertStocks = append(insertStocks, t)
 	}
 
-	_, err := collection.InsertMany(context.TODO(), insertStocks, options.InsertMany().SetOrdered(false))
-	if err != nil {
-		log.Fatal(err)
-	}
+	collection.InsertMany(context.TODO(), insertStocks, options.InsertMany().SetOrdered(false))
 }
 
 func getQuotes(client *Client, figi string, num_limit int64) {

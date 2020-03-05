@@ -13,7 +13,7 @@ import (
 
 var token = flag.String("token", os.Getenv("TOKEN"), "your token")
 
-func UpdateFromTo(from time.Time, to time.Time, instr string) []tinkoff.Candle {
+func UpdateFromTo(from time.Time, to time.Time, instr string, period tinkoff.CandleInterval) []tinkoff.Candle {
 	var quotesFIGI []string
 	switch instr {
 	case DOWJONES:
@@ -22,12 +22,13 @@ func UpdateFromTo(from time.Time, to time.Time, instr string) []tinkoff.Candle {
 		quotesFIGI = GetQuotesRus()
 	}
 	var arrayOfRequestData []RequestData
+
 	for _, element := range quotesFIGI {
 		var req RequestData
 		req.FIGI = element
 		req.From = from
 		req.To = to
-		req.Resolution = tinkoff.CandleInterval1Hour
+		req.Resolution = period
 		arrayOfRequestData = append(arrayOfRequestData, req)
 	}
 	resp := requestToServer(arrayOfRequestData)
@@ -74,6 +75,7 @@ func makeRequest(requestData RequestData) ([]tinkoff.Candle, error) {
 				time.Sleep(5 * time.Second)
 			}
 		} else {
+			Log.Debugf("error: %s ", err)
 			Log.Debugf("sleep for %d seconds", 30)
 			time.Sleep(30 * time.Second)
 		}
