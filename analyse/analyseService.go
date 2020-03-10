@@ -112,9 +112,6 @@ func getRsi(series techan.TimeSeries, name string, interval tinkoff.CandleInterv
 	} else if featureDown || featureUp {
 		log.Printf("*************instrument %s has lastRsi %f ****************",
 			nameInstrument, current)
-	} else {
-		log.Printf("here is no a signal of RSI indicators. for instrument %s . preRsi: %f , lastRsi: %f ",
-			nameInstrument, pre, current)
 	}
 
 	return nil
