@@ -2,6 +2,7 @@ package constants
 
 import (
 	tinkoff "github.com/TinkoffCreditSystems/invest-openapi-go-sdk"
+	"log"
 	"time"
 )
 
@@ -23,44 +24,55 @@ const (
 
 var QuotesMapDJ = []map[string]string{
 	{FIGI: "BBG000B9XRY4", Ticker: "AAPL", Name: "Apple"},
-	//{FIGI: "BBG000BCSST7", Ticker: "BA", Name: "BOEING"},
-	//{FIGI: "BBG000K4ND22", Ticker: "CVX", Name: "Chevron"},
-	//{FIGI: "BBG00BN96922", Ticker: "DOW", Name: "Dow inc"},
-	//{FIGI: "BBG000GZQ728", Ticker: "XOM", Name: "Exxon Mobil Corporation"},
-	//{FIGI: "BBG000C6CFJ5", Ticker: "GS", Name: "Goldman Sachs"},
-	//{FIGI: "BBG000BPD168", Ticker: "MRK", Name: "Merck & Co."},
-	//{FIGI: "BBG000BJ81C1", Ticker: "TRV", Name: "Travelers Cos"},
-	//{FIGI: "BBG000BWXBC2", Ticker: "WMT", Name: "Wal-Mart Stores"},
-	//{FIGI: "BBG000BW8S60", Ticker: "UTX", Name: "United Technologies"},
-	//{FIGI: "BBG000BKZB36", Ticker: "HD", Name: "The Home Depot"},
-	//{FIGI: "BBG000HS77T5", Ticker: "VZ", Name: "Verizon Communications"},
-	//{FIGI: "BBG000C3J3C9", Ticker: "CSCO", Name: "Cisco"},
-	//{FIGI: "BBG000BBQCY0", Ticker: "AMD", Name: "AMD"},
-	//{FIGI: "BBG000BLNNH6", Ticker: "IBM", Name: "IBM"},
-	//{FIGI: "BBG000BLZRJ2", Ticker: "MS", Name: "Morgan Stanley"},
-	//{FIGI: "BBG000BR2B91", Ticker: "PFE", Name: "Pfizer"},
-	//{FIGI: "BBG000PSKYX7", Ticker: "V", Name: "Visa"},
-	//{FIGI: "BBG000BP52R2", Ticker: "MMM", Name: "3M Company"},
-	//{FIGI: "BBG000BMX289", Ticker: "KO", Name: "COCA-COLA"},
-	//{FIGI: "BBG000FY4S11", Ticker: "C", Name: "Citigroup"},
-	//{FIGI: "BBG000BD8PN9", Ticker: "BK", Name: "Bank of New York Mellon"},
-	//{FIGI: "BBG000BWQFY7", Ticker: "WFC", Name: "Wells Fargo & Company"},
-	//{FIGI: "BBG000C5HS04", Ticker: "NKE", Name: "NIKE"},
-	//{FIGI: "BBG00BN961G4", Ticker: "DD", Name: "DuPont de Nemours Inc"},
-	//{FIGI: "BBG000BR2TH3", Ticker: "PG", Name: "Procter & Gamble"},
-	//{FIGI: "BBG000BQLTW7", Ticker: "ORCL", Name: "Oracle"},
-	//{FIGI: "BBG000BMHYD1", Ticker: "JNJ", Name: "Johnson & Johnson"},
-	//{FIGI: "BBG000F1ZSQ2", Ticker: "MA", Name: "Mastercard"},
-	//{FIGI: "BBG000BPH459", Ticker: "MSFT", Name: "Microsoft Corporation"},
-	//{FIGI: "BBG000C0G1D1", Ticker: "INTC", Name: "Intel Corporation"},
-	//{FIGI: "BBG000DMBXR2", Ticker: "JPM", Name: "JPMorgan"},
-	//{FIGI: "BBG000BCQZS4", Ticker: "AXP", Name: "American Express"},
-	//{FIGI: "BBG000BNSZP1", Ticker: "MCD", Name: "Mc'DONALDS"},
-	//{FIGI: "BBG000D9KWL9", Ticker: "MTB", Name: "M&T Bank"},
-	//{FIGI: "BBG000BF0K17", Ticker: "CAT", Name: "Caterpillar"},
-	//{FIGI: "BBG000BH4R78", Ticker: "DIS", Name: "Walt Disney"},
-	//{FIGI: "BBG000CH5208", Ticker: "UNH", Name: "UnitedHealth"},
-	//{FIGI: "BBG000BWLMJ4", Ticker: "WBA", Name: "Walgreens Boots Alliance"},
+	{FIGI: "BBG000BBQCY0", Ticker: "AMD", Name: "AMD"},
+	{FIGI: "BBG000BSJK37", Ticker: "T", Name: "AT&T"},
+	{FIGI: "BBG005P7Q881", Ticker: "AAL", Name: "American Airlines Group"},
+	{FIGI: "BBG006G2JVL2", Ticker: "BABA", Name: "Alibaba M"},
+	{FIGI: "BBG000BCSST7", Ticker: "BA", Name: "BOEING"},
+	{FIGI: "BBG000BCTLF6", Ticker: "BAC", Name: "Bank of America Corp"},
+	{FIGI: "BBG000K4ND22", Ticker: "CVX", Name: "Chevron"},
+	{FIGI: "BBG00BN96922", Ticker: "DOW", Name: "Dow inc"},
+	{FIGI: "BBG000GZQ728", Ticker: "XOM", Name: "Exxon Mobil Corporation"},
+	{FIGI: "BBG000C6CFJ5", Ticker: "GS", Name: "Goldman Sachs"},
+	{FIGI: "BBG000BPD168", Ticker: "MRK", Name: "Merck & Co."},
+	{FIGI: "BBG000BJ81C1", Ticker: "TRV", Name: "Travelers Cos"},
+	{FIGI: "BBG000BWXBC2", Ticker: "WMT", Name: "Wal-Mart Stores"},
+	{FIGI: "BBG000BW8S60", Ticker: "UTX", Name: "United Technologies"},
+	{FIGI: "BBG000BKZB36", Ticker: "HD", Name: "The Home Depot"},
+	{FIGI: "BBG000HS77T5", Ticker: "VZ", Name: "Verizon Communications"},
+	{FIGI: "BBG000C3J3C9", Ticker: "CSCO", Name: "Cisco"},
+	{FIGI: "BBG000BBJQV0", Ticker: "NVDA", Name: "NVIDIA MinPriceIncrement"},
+	{FIGI: "BBG000BLNNH6", Ticker: "IBM", Name: "IBM"},
+	{FIGI: "BBG000BLZRJ2", Ticker: "MS", Name: "Morgan Stanley"},
+	{FIGI: "BBG000C43RR5", Ticker: "EBAY", Name: "eBay"},
+	{FIGI: "BBG000BR2B91", Ticker: "PFE", Name: "Pfizer"},
+	{FIGI: "BBG000PSKYX7", Ticker: "V", Name: "Visa"},
+	{FIGI: "BBG000BP52R2", Ticker: "MMM", Name: "3M Company"},
+	{FIGI: "BBG000BMX289", Ticker: "KO", Name: "COCA-COLA"},
+	{FIGI: "BBG000FY4S11", Ticker: "C", Name: "Citigroup"},
+	{FIGI: "BBG000BLBVN4", Ticker: "BKNG", Name: "Booking"},
+	{FIGI: "BBG000BD8PN9", Ticker: "BK", Name: "Bank of New York Mellon"},
+	{FIGI: "BBG000BWQFY7", Ticker: "WFC", Name: "Wells Fargo & Company"},
+	{FIGI: "BBG000C5HS04", Ticker: "NKE", Name: "NIKE"},
+	{FIGI: "BBG00BN961G4", Ticker: "DD", Name: "DuPont de Nemours Inc"},
+	{FIGI: "BBG000BR2TH3", Ticker: "PG", Name: "Procter & Gamble"},
+	{FIGI: "BBG000BQLTW7", Ticker: "ORCL", Name: "Oracle"},
+	{FIGI: "BBG000BMHYD1", Ticker: "JNJ", Name: "Johnson & Johnson"},
+	{FIGI: "BBG000F1ZSQ2", Ticker: "MA", Name: "Mastercard"},
+	{FIGI: "BBG000BPH459", Ticker: "MSFT", Name: "Microsoft Corporation"},
+	{FIGI: "BBG000C0G1D1", Ticker: "INTC", Name: "Intel Corporation"},
+	{FIGI: "BBG000DMBXR2", Ticker: "JPM", Name: "JPMorgan"},
+	{FIGI: "BBG000BCQZS4", Ticker: "AXP", Name: "American Express"},
+	{FIGI: "BBG000BNSZP1", Ticker: "MCD", Name: "Mc'DONALDS"},
+	{FIGI: "BBG000D9KWL9", Ticker: "MTB", Name: "M&T Bank"},
+	{FIGI: "BBG000BF0K17", Ticker: "CAT", Name: "Caterpillar"},
+	{FIGI: "BBG000BH4R78", Ticker: "DIS", Name: "Walt Disney"},
+	{FIGI: "BBG000DH7JK6", Ticker: "PEP", Name: "PepsiCo"},
+	{FIGI: "BBG000CH5208", Ticker: "UNH", Name: "UnitedHealth"},
+	{FIGI: "BBG000BWLMJ4", Ticker: "WBA", Name: "Walgreens Boots Alliance"},
+	{FIGI: "BBG000BB5373", Ticker: "WU", Name: "Western Union"},
+	{FIGI: "BBG000BGPTV6", Ticker: "CMI", Name: "Cummins"},
+	{FIGI: "BBG000R7Z112", Ticker: "DAL", Name: "Delta Air Lines"},
 
 	//{FIGI: "BBG000C4LN67", Ticker: "GRMN", Name: "Garmin"},
 	//{FIGI: "BBG000BKZTP3", Ticker: "HOG", Name: "Harley-Davidson"},
@@ -174,7 +186,6 @@ var QuotesMapDJ = []map[string]string{
 	//{FIGI: "BBG000DCGRL8", Ticker: "IPGP", Name: "IPG Photonics Corporation"},
 	//{FIGI: "BBG000BB6KF5", Ticker: "MET", Name: "MetLife"},
 	//{FIGI: "BBG000BQC9V2", Ticker: "NWL", Name: "Newell Brands"},
-	//{FIGI: "BBG000BLBVN4", Ticker: "BKNG", Name: "Booking"},
 	//{FIGI: "BBG000Q5ZRM7", Ticker: "DLR", Name: "Digital Realty"},
 	//{FIGI: "BBG000BQ2C28", Ticker: "NOC", Name: "Northrop Grumman"},
 	//{FIGI: "BBG000MBDGM6", Ticker: "EQIX", Name: "Equinix"},
@@ -192,7 +203,6 @@ var QuotesMapDJ = []map[string]string{
 	//{FIGI: "BBG000L4M7F1", Ticker: "RMD", Name: "ResMed Inc"},
 	//{FIGI: "BBG000BY29C7", Ticker: "TPR", Name: "Tapestry"},
 	//{FIGI: "BBG000BJQWD2", Ticker: "AKAM", Name: "Akamai Technologies"},
-	//{FIGI: "BBG000C43RR5", Ticker: "EBAY", Name: "eBay"},
 	//{FIGI: "BBG000DWG505", Ticker: "BRK.B", Name: "Berkshire Hathaway"},
 	//{FIGI: "BBG000BFJT36", Ticker: "CHD", Name: "Church & Dwight"},
 	//{FIGI: "BBG000BHKYH4", Ticker: "ECL", Name: "Ecolab"},
@@ -261,9 +271,8 @@ var QuotesMapDJ = []map[string]string{
 	//{FIGI: "BBG000BLSL58", Ticker: "IFF", Name: "International Flavors & Fragrances"},
 	//{FIGI: "BBG000BQZMH4", Ticker: "PEG", Name: "Public Service Enterprise Group"},
 	//{FIGI: "BBG000C23KJ3", Ticker: "AES", Name: "The AES Corporation"},
-	//{FIGI: "BBG000BGPTV6", Ticker: "CMI", Name: "Cummins"},
 	//{FIGI: "BBG000BDDNH5", Ticker: "BLL", Name: "Ball Corporation"},
-	//{FIGI: "BBG000R7Z112", Ticker: "DAL", Name: "Delta Air Lines"},
+
 	//{FIGI: "BBG000BMDBZ1", Ticker: "JBHT", Name: "JB Hunt"},
 	//{FIGI: "BBG000BT41Q8", Ticker: "SLB", Name: "Schlumberger"},
 	//{FIGI: "BBG000B9XG87", Ticker: "AME", Name: "AMETEK"},
@@ -355,4 +364,22 @@ func GetInstrNamesRUS() []string {
 		names = append(names, QuotesMapRUS[index]["Name"])
 	}
 	return names
+}
+
+func GetQuoteNameByFigi(figi string) string {
+
+	for _, element := range QuotesMapDJ {
+		if element[FIGI] == figi {
+			return element["Name"]
+		}
+	}
+
+	for _, element := range QuotesMapRUS {
+		if element[FIGI] == figi {
+			return element["Name"]
+		}
+	}
+
+	log.Printf("Unknown element figi: %s", figi)
+	return ""
 }

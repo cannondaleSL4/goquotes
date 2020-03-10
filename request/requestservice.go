@@ -13,54 +13,47 @@ import (
 
 var token = flag.String("token", os.Getenv("TOKEN"), "your token")
 
-func UpdateFromTo(from time.Time, to time.Time, instr string, period tinkoff.CandleInterval) []tinkoff.Candle {
-	var quotesFIGI []string
-	switch instr {
-	case DOWJONES:
-		quotesFIGI = GetQuotesDJ()
-	case RUS:
-		quotesFIGI = GetQuotesRus()
-	}
-	var arrayOfRequestData []RequestData
-
-	for _, element := range quotesFIGI {
+func UpdateFromTo(timesArray []time.Time, figi string, interval tinkoff.CandleInterval) *[]tinkoff.Candle {
+	//candlesArray := make([]tinkoff.Candle,365)
+	var candlesArray []tinkoff.Candle
+	for i := 1; i < len(timesArray); i++ {
 		var req RequestData
-		req.FIGI = element
-		req.From = from
-		req.To = to
-		req.Resolution = period
-		arrayOfRequestData = append(arrayOfRequestData, req)
+		req.FIGI = figi
+		req.From = timesArray[i-1]
+		req.To = timesArray[i]
+		req.Resolution = interval
+		resp := requestToServer(req)
+		if resp != nil && len(*resp) != 0 {
+			candlesArray = append(candlesArray, *resp...)
+		}
 	}
-	resp := requestToServer(arrayOfRequestData)
-	if resp != nil && len(resp) != 0 {
-		return resp
+	if len(candlesArray) != 0 {
+		return &candlesArray
 	}
 	return nil
 }
 
-func requestToServer(arrayOfRequestData []RequestData) []tinkoff.Candle {
+func requestToServer(requestData RequestData) *[]tinkoff.Candle {
 	stocks := make([]tinkoff.Candle, 0)
 
-	for _, data := range arrayOfRequestData {
-		candles, err := makeRequest(data)
-		if err != nil {
-			log.Printf("%+v\n", err)
-			return nil
-		}
-
-		if len(candles) == 0 {
-			Log.Debugf("Len of the response array is 0 for data: %+v\n", data.From)
-			Log.Debugf("Request for instrument %+v\n", data.FIGI)
-			return nil
-		}
-		stocks = append(stocks, candles...)
+	candles, err := makeRequest(requestData)
+	if err != nil {
+		log.Printf("%+v\n", err)
+		return nil
 	}
 
-	return stocks
+	if len(candles) == 0 {
+		Log.Debugf("Len of the response array is 0 for data: %+v\n", requestData.From)
+		Log.Debugf("Request for instrument %+v\n", requestData.FIGI)
+		return nil
+	}
+	stocks = append(stocks, candles...)
+
+	return &stocks
 }
 
 func makeRequest(requestData RequestData) ([]tinkoff.Candle, error) {
-	for i := 1; i < 10; i++ {
+	for i := 1; i < 5; i++ {
 		client := tinkoff.NewRestClient(*token)
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		candles, err := client.Candles(ctx, requestData.From, requestData.To, requestData.Resolution, requestData.FIGI)
@@ -70,9 +63,9 @@ func makeRequest(requestData RequestData) ([]tinkoff.Candle, error) {
 			if len(candles) != 0 {
 				return candles, err
 			} else {
-				Log.Debugf("sleep for %d seconds", 5)
+				Log.Debugf("sleep for %d milliseconds", 500)
 				Log.Debugf("date from %+v to %+v", requestData.From, requestData.To)
-				time.Sleep(5 * time.Second)
+				time.Sleep(500 * time.Millisecond)
 			}
 		} else {
 			Log.Debugf("error: %s ", err)

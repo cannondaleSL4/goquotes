@@ -13,7 +13,7 @@ import (
 )
 
 type FormAction struct {
-	LastWeek, LastMonth, LastYear, For10Years, Analyse4, AnalyseD string
+	LastWeek, LastMonth, LastYear, For10Years, AnalyseD, AnalyseW string
 }
 
 var FormActionVar = FormAction{
@@ -21,8 +21,8 @@ var FormActionVar = FormAction{
 	LastMonth:  "Last M",
 	LastYear:   "Last Y",
 	For10Years: "For 10Y",
-	Analyse4:   "Analyse 4H",
 	AnalyseD:   "Analyse D",
+	AnalyseW:   "Analyse W",
 }
 
 type ViewData struct {
@@ -79,40 +79,60 @@ func InstReloadController(w http.ResponseWriter, r *http.Request) {
 }
 
 func parseForm(r *http.Request, instr string) {
-	var arrayOfCandle []tinkoff.Candle
+	var arrayOfCandle *[][]tinkoff.Candle
 	fromTime := time.Now()
 	if r.FormValue(FormActionVar.LastWeek) != "" {
-		arrayOfCandle = getCandle(fromTime.AddDate(0, 0, -7), instr, tinkoff.CandleInterval1Hour)
-		saveToDataBase(arrayOfCandle)
+		arrayOfCandle, _ = getCandle(fromTime.AddDate(0, 0, -7), instr, tinkoff.CandleInterval1Hour)
+		saveToDataBase(*arrayOfCandle)
 	} else if r.FormValue(FormActionVar.LastMonth) != "" {
-		arrayOfCandle = getCandle(fromTime.AddDate(0, -1, 0), instr, tinkoff.CandleInterval1Hour)
-		saveToDataBase(arrayOfCandle)
+		arrayOfCandle, _ = getCandle(fromTime.AddDate(0, -1, 0), instr, tinkoff.CandleInterval1Hour)
+		saveToDataBase(*arrayOfCandle)
 	} else if r.FormValue(FormActionVar.LastYear) != "" {
-		arrayOfCandle = getCandle(fromTime.AddDate(0, 0, -364), instr, tinkoff.CandleInterval1Hour)
-		saveToDataBase(arrayOfCandle)
+		arrayOfCandle, _ = getCandle(fromTime.AddDate(0, 0, -364), instr, tinkoff.CandleInterval1Hour)
+		saveToDataBase(*arrayOfCandle)
 	} else if r.FormValue(FormActionVar.For10Years) != "" {
-		arrayOfCandle = getCandle(fromTime.AddDate(0, 0, -10*364), instr, tinkoff.CandleInterval1Hour)
-		saveToDataBase(arrayOfCandle)
-	} else if r.FormValue(FormActionVar.Analyse4) != "" {
-		arrayOfCandle = getCandle(fromTime.AddDate(0, 0, -7), instr, tinkoff.CandleInterval1Hour)
-		analyse.GetAnalyse(arrayOfCandle, 4)
+		arrayOfCandle, _ = getCandle(fromTime.AddDate(0, 0, -10*364), instr, tinkoff.CandleInterval1Hour)
+		saveToDataBase(*arrayOfCandle)
 	} else if r.FormValue(FormActionVar.AnalyseD) != "" {
-		arrayOfCandle = getCandle(fromTime.AddDate(0, 0, -364), instr, tinkoff.CandleInterval1Day)
-		analyse.GetAnalyse(arrayOfCandle, 24)
+		var result *[]analyse.AnalyzeResponse
+		go func() {
+			arrayOfCandle, _ = getCandle(fromTime.AddDate(0, 0, -364), instr, tinkoff.CandleInterval1Day)
+			result = analyse.GetAnalyse(arrayOfCandle, tinkoff.CandleInterval1Day)
+		}()
+		if result != nil {
+			log.Printf("Analyse for Days has been executed.")
+		}
+	} else if r.FormValue(FormActionVar.AnalyseW) != "" {
+		var result *[]analyse.AnalyzeResponse
+		go func() {
+			arrayOfCandle, _ = getCandle(fromTime.AddDate(0, -23, -20), instr, tinkoff.CandleInterval1Week)
+			result = analyse.GetAnalyse(arrayOfCandle, tinkoff.CandleInterval1Week)
+		}()
+		if result != nil {
+			log.Printf("Analyse for Weeks has been executed.")
+		}
 	}
 }
 
-func getCandle(fromTime time.Time, instr string, interval tinkoff.CandleInterval) []tinkoff.Candle {
-
+func getCandle(fromTime time.Time, instr string, interval tinkoff.CandleInterval) (*[][]tinkoff.Candle, error) {
+	var err error
+	var array [][]tinkoff.Candle
 	if interval == tinkoff.CandleInterval1Day {
-		return splitDaysData(fromTime, instr, interval)
-	} else {
-		return splitHoursDate(fromTime, instr, interval)
+		timeArray := splitDaysData(fromTime, instr, interval)
+		return getQuotes(*timeArray, fromTime, instr, interval), nil
+	} else if interval == tinkoff.CandleInterval1Week {
+		timeArray := splitDaysData(fromTime, instr, interval)
+		return getQuotes(*timeArray, fromTime, instr, interval), nil
+	} else if interval == tinkoff.CandleInterval1Hour {
+		timeArray := splitHoursDate(fromTime, instr, interval)
+		return getQuotes(*timeArray, fromTime, instr, interval), nil
 	}
+
+	log.Printf("unknown time period was chosen. %s", interval)
+	return &array, err
 }
 
-func splitHoursDate(fromTime time.Time, instr string, interval tinkoff.CandleInterval) []tinkoff.Candle {
-	var arrayOfCandle []tinkoff.Candle
+func splitHoursDate(fromTime time.Time, instr string, interval tinkoff.CandleInterval) *[]time.Time {
 	var arrayOfDate []time.Time
 	toTime := time.Now()
 
@@ -120,8 +140,6 @@ func splitHoursDate(fromTime time.Time, instr string, interval tinkoff.CandleInt
 	toTime = roundOfTheHour(toTime)
 
 	diff := int(toTime.Sub(fromTime).Hours() / 24)
-
-	//arrayOfDate = append(arrayOfDate, toTime)
 
 	for i := 0; i < diff; i = i + 6 {
 		arrayOfDate = append(arrayOfDate, fromTime.AddDate(0, 0, +i))
@@ -131,35 +149,41 @@ func splitHoursDate(fromTime time.Time, instr string, interval tinkoff.CandleInt
 		arrayOfDate = append(arrayOfDate, toTime)
 	}
 
-	for i := 1; i < len(arrayOfDate); i++ {
-		if checkWeekEnd(arrayOfDate[i], arrayOfDate[i-1]) {
-			entityFromServer := requestService.UpdateFromTo(arrayOfDate[i-1], arrayOfDate[i], instr, interval)
-			if entityFromServer != nil {
-				arrayOfCandle = append(arrayOfCandle, entityFromServer...)
-			}
-		}
-	}
-	return arrayOfCandle
+	return &arrayOfDate
 }
 
-func splitDaysData(fromTime time.Time, instr string, interval tinkoff.CandleInterval) []tinkoff.Candle {
+func splitDaysData(fromTime time.Time, instr string, interval tinkoff.CandleInterval) *[]time.Time {
 	toTime := time.Now()
 	var arrayOfDate []time.Time
 
-	fromTime = roundOfTheDay(fromTime)
-	toTime = roundOfTheDay(toTime)
-
 	arrayOfDate = append(arrayOfDate, fromTime)
 	arrayOfDate = append(arrayOfDate, toTime)
-
-	entityFromServer := requestService.UpdateFromTo(fromTime, toTime, instr, interval)
-	if entityFromServer != nil {
-		return entityFromServer
-	}
-	return nil
+	return &arrayOfDate
 }
 
-func saveToDataBase(entityFromServer []tinkoff.Candle) {
+func getQuotes(arrayOfDate []time.Time, toTime time.Time, instr string, interval tinkoff.CandleInterval) *[][]tinkoff.Candle {
+	var arrayOfCandle [][]tinkoff.Candle
+
+	var quotesFIGI []string
+
+	switch instr {
+	case DOWJONES:
+		quotesFIGI = GetQuotesDJ()
+	case RUS:
+		quotesFIGI = GetQuotesRus()
+	}
+
+	for _, element := range quotesFIGI {
+		entityFromServer := requestService.UpdateFromTo(arrayOfDate, element, interval)
+		if entityFromServer != nil {
+			arrayOfCandle = append(arrayOfCandle, *entityFromServer)
+		}
+	}
+
+	return &arrayOfCandle
+}
+
+func saveToDataBase(entityFromServer [][]tinkoff.Candle) {
 	connection := clientDb.GetClient()
 	clientDb.InsertConst(connection)
 

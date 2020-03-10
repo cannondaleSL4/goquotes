@@ -66,7 +66,7 @@ func InsertConst(client *Client) {
 	}
 }
 
-func InsertNewQuotes(client *Client, stock []tinkoff.Candle) {
+func InsertNewQuotes(client *Client, stock [][]tinkoff.Candle) {
 	collection := client.Database(constants.DBNAME).Collection("stocks")
 
 	insertStocks := []interface{}{}
