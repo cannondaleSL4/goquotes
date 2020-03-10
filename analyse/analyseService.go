@@ -99,7 +99,6 @@ func getRsi(series techan.TimeSeries, name string, interval tinkoff.CandleInterv
 		log.Printf("result of analyse for indicator %s, for instrument %s . preRsi: %f , lastRsi: %f , result: %f", "Rsi",
 			nameInstrument, pre, current, "Sell")
 		return &result
-		//results = append(results, result)
 	} else if preLineUp && afterLineUp {
 		result.Indicator = "Rsi"
 		result.Interval = string(interval)
@@ -108,7 +107,6 @@ func getRsi(series techan.TimeSeries, name string, interval tinkoff.CandleInterv
 		log.Printf("result of analyse for indicator %s, for instrument %s . preRsi: %s , lastRsi: %s , result: %s", "Rsi",
 			nameInstrument, pre, current, "Buy")
 		return &result
-		//results = append(results, result)
 	} else if featureDown || featureUp {
 		log.Printf("*************instrument %s has lastRsi %f ****************",
 			nameInstrument, current)
