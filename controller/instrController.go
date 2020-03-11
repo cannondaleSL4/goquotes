@@ -43,36 +43,16 @@ func InstReloadController(w http.ResponseWriter, r *http.Request) {
 	data := ViewData{}
 	if r.RequestURI == "/dj_analyse" {
 		Log.Debugf("Controller for update %s instruments was chosen.", DOWJONES)
-
 		data.Instrument = DOWJONES
 		data.Instruments = GetInstrNamesDJ()
 		data.FormActionV = FormActionVar
-
-		tmpl := template.Must(template.ParseFiles(INSTRUMENTS))
-
-		if r.Method != http.MethodPost {
-			tmpl.Execute(w, &data)
-			return
-		}
-
-		parseForm(r, DOWJONES)
-
-		details := FormData{
-			Instruments: r.FormValue("email"),
-			Do:          r.FormValue("subject"),
-		}
-		_ = details
-
-		tmpl.Execute(w, &data)
-
+		page(w, r, data)
 	} else if r.RequestURI == "/rus_analyse" {
 		Log.Debugf("Controller for update %s instruments was chosen.", RUS)
 		data.Instrument = RUS
 		data.Instruments = GetInstrNamesRUS()
 		data.FormActionV = FormActionVar
-		t, _ := template.ParseFiles(INSTRUMENTS)
-		data.Instrument = "Rus stocks"
-		t.Execute(w, data)
+		page(w, r, data)
 	} else {
 		log.Fatalf("unknown instruments was chosen. %s", RUS)
 	}
@@ -82,21 +62,21 @@ func parseForm(r *http.Request, instr string) {
 	var arrayOfCandle *[][]tinkoff.Candle
 	fromTime := time.Now()
 	if r.FormValue(FormActionVar.LastWeek) != "" {
-		arrayOfCandle, _ = getCandle(fromTime.AddDate(0, 0, -7), instr, tinkoff.CandleInterval1Hour)
+		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -7), instr, tinkoff.CandleInterval1Hour)
 		saveToDataBase(*arrayOfCandle)
 	} else if r.FormValue(FormActionVar.LastMonth) != "" {
-		arrayOfCandle, _ = getCandle(fromTime.AddDate(0, -1, 0), instr, tinkoff.CandleInterval1Hour)
+		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, -1, 0), instr, tinkoff.CandleInterval1Hour)
 		saveToDataBase(*arrayOfCandle)
 	} else if r.FormValue(FormActionVar.LastYear) != "" {
-		arrayOfCandle, _ = getCandle(fromTime.AddDate(0, 0, -364), instr, tinkoff.CandleInterval1Hour)
+		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -364), instr, tinkoff.CandleInterval1Hour)
 		saveToDataBase(*arrayOfCandle)
 	} else if r.FormValue(FormActionVar.For10Years) != "" {
-		arrayOfCandle, _ = getCandle(fromTime.AddDate(0, 0, -10*364), instr, tinkoff.CandleInterval1Hour)
+		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -10*364), instr, tinkoff.CandleInterval1Hour)
 		saveToDataBase(*arrayOfCandle)
 	} else if r.FormValue(FormActionVar.AnalyseD) != "" {
 		var result *[]analyse.AnalyzeResponse
 		go func() {
-			arrayOfCandle, _ = getCandle(fromTime.AddDate(0, 0, -364), instr, tinkoff.CandleInterval1Day)
+			arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -364), instr, tinkoff.CandleInterval1Day)
 			result = analyse.GetAnalyse(arrayOfCandle, tinkoff.CandleInterval1Day)
 		}()
 		if result != nil {
@@ -105,7 +85,7 @@ func parseForm(r *http.Request, instr string) {
 	} else if r.FormValue(FormActionVar.AnalyseW) != "" {
 		var result *[]analyse.AnalyzeResponse
 		go func() {
-			arrayOfCandle, _ = getCandle(fromTime.AddDate(0, -23, -20), instr, tinkoff.CandleInterval1Week)
+			arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, -23, -20), instr, tinkoff.CandleInterval1Week)
 			result = analyse.GetAnalyse(arrayOfCandle, tinkoff.CandleInterval1Week)
 		}()
 		if result != nil {
@@ -114,7 +94,7 @@ func parseForm(r *http.Request, instr string) {
 	}
 }
 
-func getCandle(fromTime time.Time, instr string, interval tinkoff.CandleInterval) (*[][]tinkoff.Candle, error) {
+func GetCandle(fromTime time.Time, instr string, interval tinkoff.CandleInterval) (*[][]tinkoff.Candle, error) {
 	var err error
 	var array [][]tinkoff.Candle
 	if interval == tinkoff.CandleInterval1Day {
@@ -198,14 +178,12 @@ func roundOfTheHour(t time.Time) time.Time {
 	return time.Date(year, month, day, hour, 0, 0, 0, t.Location())
 }
 
-func roundOfTheDay(t time.Time) time.Time {
-	year, month, day := t.Date()
-	return time.Date(year, month, day, 0, 0, 0, 0, t.Location())
-}
-
-func checkWeekEnd(from time.Time, to time.Time) bool {
-	if (from.Weekday() != 6 && to.Weekday() != 0) && (from.Weekday() != 0 && to.Weekday() != 1) {
-		return true
+func page(w http.ResponseWriter, r *http.Request, data ViewData) {
+	tmpl := template.Must(template.ParseFiles(INSTRUMENTS))
+	if r.Method != http.MethodPost {
+		tmpl.Execute(w, &data)
+		return
 	}
-	return false
+	parseForm(r, DOWJONES)
+	tmpl.Execute(w, &data)
 }
