@@ -62,10 +62,18 @@
         </div>
 
         <div class="container" style="min-height:100% width:80%">
-
+            {{if .ResultAnalyse}}
+                <table><tr><td>Name</td><td>Interval</td><td>Result</td><td>Description</td>
+                {{ range $idx, $item  := .ResultAnalyse}}
+                    <tr>
+                        <td>{{ $item.Name }}</td><td>{{ $item.Interval }}</td><td>{{ $item.Result }}</td><td>{{ $item.Description }}</td>
+                    </tr>
+                {{end}}
+                </table>
             <div class="alert alert-warning alert-dismissible" role="alert">
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
             </div>
+            {{end}}
         </div>
     </form>
 </div>

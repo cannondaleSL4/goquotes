@@ -4,15 +4,15 @@ import (
 	. "github.com/goquotes/constants"
 	controller "github.com/goquotes/controller"
 	. "github.com/goquotes/scheduler"
-
 	"github.com/gorilla/mux"
 	"net/http"
 )
 
 func main() {
 
-	Scheduler()
-
+	go func() {
+		Scheduler()
+	}()
 	Log.Infof("Started DNS MX Record Application. URL Port [%v] ", PORT)
 	rtr := mux.NewRouter()
 	rtr.HandleFunc("/", controller.StartHandler)
