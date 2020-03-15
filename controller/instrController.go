@@ -66,7 +66,7 @@ func page(w http.ResponseWriter, r *http.Request, data ViewData) {
 		tmpl.Execute(w, &data)
 		return
 	}
-	data = parseForm(r, DOWJONES, data)
+	data = parseForm(r, data.Instrument, data)
 	tmpl.Execute(w, &data)
 }
 

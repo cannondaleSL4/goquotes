@@ -330,8 +330,27 @@ var QuotesMapDJ = []map[string]string{
 }
 
 var QuotesMapRUS = []map[string]string{
-	{FIGI: "llllllAAAA", Ticker: "Rus", Name: "AppleRus"},
-	{FIGI: "llllll", Ticker: "Belarus", Name: "BOEING_Belarus"},
+	{FIGI: "BBG004730N88", Ticker: "SBER", Name: "Сбербанк России"},
+	{FIGI: "BBG004730RP0", Ticker: "GAZP", Name: "Газпром"},
+	{FIGI: "BBG004731489", Ticker: "GMKN", Name: "Норильский никель"},
+	{FIGI: "BBG004731354", Ticker: "ROSN", Name: "Роснефть"},
+	{FIGI: "BBG004731032", Ticker: "LKOH", Name: "ЛУКОЙЛ"},
+	{FIGI: "BBG00475KKY8", Ticker: "NVTK", Name: "НОВАТЭК"},
+	{FIGI: "BBG004730ZJ9", Ticker: "VTBR", Name: "Банк ВТБ"},
+	{FIGI: "BBG004S684M6", Ticker: "SIBN", Name: "Газпром нефть"},
+	{FIGI: "BBG004S681M2", Ticker: "SNGSP", Name: "Сургутнефтегаз - привилегированные акции"},
+	{FIGI: "BBG000R607Y3", Ticker: "PLZL", Name: "Полюс Золото"},
+	{FIGI: "BBG000NLCCM3", Ticker: "LSNGP", Name: "Ленэнерго - акции привилегированные"},
+	{FIGI: "BBG004RVFFC0", Ticker: "TATN", Name: "Татнефть"},
+	{FIGI: "BBG00475K6C3", Ticker: "CHMF", Name: "Северсталь"},
+	{FIGI: "BBG004S681B4", Ticker: "NLMK", Name: "НЛМК"},
+	{FIGI: "BBG004S681W1", Ticker: "MTSS", Name: "МТС"},
+	{FIGI: "BBG004PYF2N3", Ticker: "POLY", Name: "Polymetal"},
+	{FIGI: "BBG00JXPFBN0", Ticker: "FIVE", Name: "ГДР X5 RetailGroup"},
+	{FIGI: "BBG004S68B31", Ticker: "ALRS", Name: "АЛРОСА"},
+	{FIGI: "BBG008F2T3T2", Ticker: "RUAL", Name: "РУСАЛ"},
+	{FIGI: "BBG004S68507", Ticker: "MAGN", Name: "Магнитогорский металлургический комбинат"},
+	{FIGI: "BBG00J5LMW10", Ticker: "ENPL", Name: "ГДР En+ Group"},
 }
 
 func GetQuotesDJ() []string {
@@ -381,5 +400,22 @@ func GetQuoteNameByFigi(figi string) string {
 	}
 
 	log.Printf("Unknown element figi: %s", figi)
+	return ""
+}
+
+func GetFigiByName(name string) string {
+	for _, element := range QuotesMapDJ {
+		if element[Name] == name {
+			return element["Name"]
+		}
+	}
+
+	for _, element := range QuotesMapRUS {
+		if element[Name] == name {
+			return element["Name"]
+		}
+	}
+
+	log.Printf("Unknown element name: %s", name)
 	return ""
 }

@@ -78,7 +78,7 @@ func getRsi(series techan.TimeSeries, name string, interval tinkoff.CandleInterv
 				var result AnalyzeResponse
 				result.Indicator = "Rsi"
 				result.Interval = string(interval)
-				result.Name = name
+				result.Name = fmt.Sprintf("(%s) %s", constants.GetFigiByName(name), name)
 				result.Result = "Buy"
 				result.Description = fmt.Sprintf("preRsi: %f , lastRsi: %f", preLast, last)
 				log.Printf("result of analyse for indicator %s, for instrument %s . preRsi: %f , lastRsi: %f , result: %s", "Rsi",
