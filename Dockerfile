@@ -13,9 +13,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o qoquotes .
 #FROM scratch
 FROM golang:alpine
 # Copy our static executable
-COPY --from=builder /go/src/github.com/goquotes/qoquotes /go/bin/goquotes
-COPY --from=builder /go/src/github.com/goquotes/static /go/bin/static
-COPY --from=builder /go/src/github.com/goquotes/templates /go/bin/templates
+COPY --from=builder /go/src/github.com/goquotes/qoquotes /go/src/goquotes
+COPY --from=builder /go/src/github.com/goquotes/static /go/src/static
+COPY --from=builder /go/src/github.com/goquotes/templates /go/src/templates
 
 RUN apk update && apk add git && apk add ca-certificates && apk add curl
 
@@ -23,13 +23,19 @@ RUN apk update && apk add git && apk add ca-certificates && apk add curl
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-RUN chmod -R 777 /go/bin
+RUN chmod -R 777 /go/src/*
 
 USER appuser
 #debug
-RUN cd /go/bin && ls -lh
+RUN cd /go/src && ls -lh
 
-ENTRYPOINT ["/go/bin/goquotes"]
+ARG PORT=3000
+ARG TOKEN=""
 
-EXPOSE 3000
+ENV PORT "$PORT"
+ENV TOKEN "$TOKEN"
+
+WORKDIR /go/src
+
+ENTRYPOINT ["./goquotes"]
 

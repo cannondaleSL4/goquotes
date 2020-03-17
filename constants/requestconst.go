@@ -14,9 +14,8 @@ type RequestData struct {
 }
 
 const (
-	PORT        = ":3000"
-	INDEX       = "templates/index.html"
-	INSTRUMENTS = "templates/instr.html"
+	INDEX       = "./templates/index.html"
+	INSTRUMENTS = "./templates/instr.html"
 	FIGI        = "FIGI"
 	Ticker      = "TICKER"
 	Name        = "Name"

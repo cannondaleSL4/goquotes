@@ -14,7 +14,6 @@ import (
 var token = flag.String("token", os.Getenv("TOKEN"), "your token")
 
 func UpdateFromTo(timesArray []time.Time, figi string, interval tinkoff.CandleInterval) *[]tinkoff.Candle {
-	//candlesArray := make([]tinkoff.Candle,365)
 	var candlesArray []tinkoff.Candle
 	for i := 1; i < len(timesArray); i++ {
 		var req RequestData
