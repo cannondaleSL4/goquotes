@@ -96,6 +96,7 @@ func parseForm(r *http.Request, instr string, data ViewData) ViewData {
 		//	result = analyse.GetAnalyse(arrayOfCandle, tinkoff.CandleInterval1Day)
 		//}()
 		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -364), instr, tinkoff.CandleInterval1Day)
+		arrayOfCandle = makeSlice(arrayOfCandle)
 		result = analyse.GetAnalyse(arrayOfCandle, tinkoff.CandleInterval1Day)
 		if result != nil {
 			data.ResultAnalyse = *result
@@ -103,11 +104,8 @@ func parseForm(r *http.Request, instr string, data ViewData) ViewData {
 		}
 	} else if r.FormValue(FormActionVar.AnalyseW) != "" {
 		var result *[]analyse.AnalyzeResponse
-		//go func() {
-		//	arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, -23, -20), instr, tinkoff.CandleInterval1Week)
-		//	result = analyse.GetAnalyse(arrayOfCandle, tinkoff.CandleInterval1Week)
-		//}()
 		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, -23, -20), instr, tinkoff.CandleInterval1Week)
+		arrayOfCandle = makeSlice(arrayOfCandle)
 		result = analyse.GetAnalyse(arrayOfCandle, tinkoff.CandleInterval1Week)
 		if result != nil {
 			data.ResultAnalyse = *result
@@ -115,6 +113,16 @@ func parseForm(r *http.Request, instr string, data ViewData) ViewData {
 		}
 	}
 	return data
+}
+
+func makeSlice(array *[][]tinkoff.Candle) *[][]tinkoff.Candle {
+	var sliceArray [][]tinkoff.Candle = make([][]tinkoff.Candle, 50)
+	for index, element := range *array {
+		temp := element
+		slice := temp[len(temp)-50:]
+		sliceArray[index] = slice
+	}
+	return &sliceArray
 }
 
 func GetCandle(fromTime time.Time, instr string, interval tinkoff.CandleInterval) (*[][]tinkoff.Candle, error) {

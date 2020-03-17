@@ -74,7 +74,7 @@ func getRsi(series techan.TimeSeries, name string, interval tinkoff.CandleInterv
 			preLast := slice_rsi[len(slice_rsi)-2]
 			last := slice_rsi[len(slice_rsi)-1]
 
-			if last > preLast && last > 30 && getWilliams(series) {
+			if preLast < 30 && last > preLast && last > 30 && getWilliams(series) {
 				var result AnalyzeResponse
 				result.Indicator = "Rsi"
 				result.Interval = string(interval)

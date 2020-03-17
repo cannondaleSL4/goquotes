@@ -3,7 +3,6 @@ package request
 import (
 	"context"
 	"flag"
-	"fmt"
 	. "github.com/goquotes/constants"
 	"log"
 	"os"
@@ -54,7 +53,6 @@ func requestToServer(requestData RequestData) *[]tinkoff.Candle {
 }
 
 func makeRequest(requestData RequestData) ([]tinkoff.Candle, error) {
-	fmt.Printf("TOKEN: %s", *token)
 	for i := 1; i < 5; i++ {
 		client := tinkoff.NewRestClient(*token)
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

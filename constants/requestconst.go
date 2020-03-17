@@ -406,13 +406,13 @@ func GetQuoteNameByFigi(figi string) string {
 func GetFigiByName(name string) string {
 	for _, element := range QuotesMapDJ {
 		if element[Name] == name {
-			return element["Name"]
+			return element[Ticker]
 		}
 	}
 
 	for _, element := range QuotesMapRUS {
 		if element[Name] == name {
-			return element["Name"]
+			return element[Ticker]
 		}
 	}
 

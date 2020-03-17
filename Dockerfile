@@ -16,10 +16,20 @@ FROM golang:alpine
 COPY --from=builder /go/src/github.com/goquotes/qoquotes /go/bin/goquotes
 COPY --from=builder /go/src/github.com/goquotes/static /go/bin/static
 COPY --from=builder /go/src/github.com/goquotes/templates /go/bin/templates
+
+RUN apk update && apk add git && apk add ca-certificates && apk add curl
+
 #COPY --from=builder /go/bin/hello /go/bin/goquotes
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-#EXPOSE 3000
+
+RUN chmod -R 777 /go/bin
+
 USER appuser
-#RUN chmod 700 /go/bin/quotes/target
+#debug
+RUN cd /go/bin && ls -lh
+
 ENTRYPOINT ["/go/bin/goquotes"]
+
+EXPOSE 3000
+
