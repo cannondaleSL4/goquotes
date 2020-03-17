@@ -1,8 +1,8 @@
 # Create container
-docker build -t gogo .
+docker build -t gogo-quotes .
 
 # Run container 
 
-docker run -it --name gogo -e TOKEN="${TOKEN}" PORT="${PORT}"  --net=host -p 3000:3000 gogo
+docker run -it --name gogo-quotes -e TOKEN="${TOKEN}" -e PORT="${PORT}" --net=host -p 3000:3000 gogo-quotes
 
-docker exec -it gogo sh
+docker exec -it gogo-quotes sh

@@ -10,24 +10,21 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o qoquotes .
 
 # STEP 2 build a small image
 # start from scratch
-#FROM scratch
-FROM golang:alpine
+FROM scratch
 # Copy our static executable
 COPY --from=builder /go/src/github.com/goquotes/qoquotes /go/src/goquotes
 COPY --from=builder /go/src/github.com/goquotes/static /go/src/static
 COPY --from=builder /go/src/github.com/goquotes/templates /go/src/templates
 
-RUN apk update && apk add git && apk add ca-certificates && apk add curl
+#RUN apk update && apk add git && apk add ca-certificates && apk add curl
 
 #COPY --from=builder /go/bin/hello /go/bin/goquotes
 COPY --from=builder /etc/passwd /etc/passwd
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-RUN chmod -R 777 /go/src/*
+#RUN chmod -R 777 /go/src/*
 
 USER appuser
-#debug
-RUN cd /go/src && ls -lh
 
 ARG PORT=3000
 ARG TOKEN=""
