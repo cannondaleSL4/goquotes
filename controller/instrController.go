@@ -116,11 +116,15 @@ func parseForm(r *http.Request, instr string, data ViewData) ViewData {
 }
 
 func makeSlice(array *[][]tinkoff.Candle) *[][]tinkoff.Candle {
-	var sliceArray [][]tinkoff.Candle = make([][]tinkoff.Candle, len(*array))
-	for index, element := range *array {
+	var sliceArray [][]tinkoff.Candle
+	for _, element := range *array {
 		temp := element
-		slice := temp[len(temp)-50:]
-		sliceArray[index] = slice
+		if len(temp) > 50 {
+			slice := temp[len(temp)-50:]
+			sliceArray = append(sliceArray, slice)
+		} else {
+			log.Printf("Len of array smaller that 50 for instument %s", GetQuoteNameByFigi(temp[0].FIGI))
+		}
 	}
 	return &sliceArray
 }
