@@ -23,6 +23,7 @@ func Scheduler() {
 	gocron.Every(10).Minutes().Do(ping)
 
 	gocron.Every(1).Monday().At("08:00").Do(telega)
+	gocron.Every(1).Monday().At("08:30").Do(telegaWeek)
 	gocron.Every(1).Tuesday().At("08:00").Do(telega)
 	gocron.Every(1).Wednesday().At("08:00").Do(telega)
 	gocron.Every(1).Thursday().At("08:00").Do(telega)
@@ -38,20 +39,29 @@ func ping() {
 	_, _ = http.Get("https://gogo-quotes.herokuapp.com/")
 }
 
-func telega() {
-	resultDJ := task(constants.DOWJONES)
+func telegaWeek() {
+	resultDJ := task(constants.DOWJONES, tinkoff.CandleInterval1Week)
 	log.Println("Analyse job for DJ telegram has been executed")
 	sentResult(*resultDJ)
-	resultRUS := task(constants.RUS)
+	resultRUS := task(constants.RUS, tinkoff.CandleInterval1Week)
 	sentResult(*resultRUS)
 	log.Println("Analyse job for Rus telegram has been executed")
 }
 
-func task(instr string) *[]analyse.AnalyzeResponse {
+func telega() {
+	resultDJ := task(constants.DOWJONES, tinkoff.CandleInterval1Day)
+	log.Println("Analyse job for DJ telegram has been executed")
+	sentResult(*resultDJ)
+	resultRUS := task(constants.RUS, tinkoff.CandleInterval1Day)
+	sentResult(*resultRUS)
+	log.Println("Analyse job for Rus telegram has been executed")
+}
+
+func task(instr string, interval tinkoff.CandleInterval) *[]analyse.AnalyzeResponse {
 	var result *[]analyse.AnalyzeResponse
 	var arrayOfCandle *[][]tinkoff.Candle
 	fromTime := time.Now()
-	arrayOfCandle, _ = controller.GetCandle(fromTime.AddDate(0, 0, -364), instr, tinkoff.CandleInterval1Day)
+	arrayOfCandle, _ = controller.GetCandle(fromTime.AddDate(0, 0, -364), instr, interval)
 	result = analyse.GetAnalyse(arrayOfCandle, tinkoff.CandleInterval1Day)
 	return result
 }
