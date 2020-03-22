@@ -12,10 +12,10 @@ import (
 
 func main() {
 
-	go func() {
-		Scheduler()
-	}()
-	//Scheduler()
+	//go func() {
+	//	Scheduler()
+	//}()
+	Scheduler()
 	port := flag.String("port", os.Getenv("PORT"), "app port")
 	if len(*port) == 0 {
 		*port = "3000"
