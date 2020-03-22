@@ -15,6 +15,7 @@ func main() {
 	go func() {
 		Scheduler()
 	}()
+	//Scheduler()
 	port := flag.String("port", os.Getenv("PORT"), "app port")
 	if len(*port) == 0 {
 		*port = "3000"
@@ -27,4 +28,7 @@ func main() {
 	rtr.PathPrefix("/static/").Handler(http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 	http.Handle("/", rtr)
 	Log.Fatal(http.ListenAndServe(":"+*port, nil))
+	//go func() {
+	//	Scheduler()
+	//}()
 }
