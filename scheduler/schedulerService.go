@@ -31,7 +31,7 @@ func Scheduler() {
 	gocron.Every(1).Friday().At("09:00").Do(telega)
 	gocron.Every(1).Friday().At("09:00").Do(telega)
 
-	<-gocron.Start()
+	gocron.Start()
 }
 
 //this method for heroku only
@@ -74,18 +74,6 @@ func sentResult(result []analyse.AnalyzeResponse) {
 	bot.Debug = true
 	log.Printf("Authorized on account %s", bot.Self.UserName)
 
-	//var ucfg tgbotapi.UpdateConfig = tgbotapi.NewUpdate(0)
-	//ucfg.Timeout = 60
-	//updates, err := bot.GetUpdatesChan(ucfg)
-	//
-	//_ = updates
-
-	//for update := range updates {
-	//	if update.Message == nil {
-	//		continue
-	//	}
-	//}
-
 	chatIdInt64, err := strconv.ParseInt(*chatId, 10, 64)
 	if err != nil {
 		log.Printf("Err! Could not get chat id. err: %s", err)
@@ -95,73 +83,18 @@ func sentResult(result []analyse.AnalyzeResponse) {
 		msg := tgbotapi.NewMessage(chatIdInt64, fmt.Sprintln("There are no any results for trading"))
 		bot.Send(msg)
 	} else {
-		//msg := tgbotapi.NewMessage(chatIdInt64, fmt.Sprintln("There are results of analyse:"))
-		//bot.Send(msg)
-		strResult := "There are results of analyse: \n" + parseResult(&result)
-		//msg1 := tgbotapi.NewMessage(chatIdInt64, fmt.Sprintln(result))
+
+		strResult := "There are results of analyse interval " + result[0].Interval + " : \n" + parseResult(&result)
 		msg1 := tgbotapi.NewMessage(chatIdInt64, strResult)
 		bot.Send(msg1)
 	}
 
-	//for {
-	//	select {
-	//	case update := <-bot.Updates:
-	//		// Пользователь, который написал боту
-	//		UserName := update.Message.From.UserName
-	//
-	//		// ID чата/диалога.
-	//		// Может быть идентификатором как чата с пользователем
-	//		// (тогда он равен UserID) так и публичного чата/канала
-	//		ChatID := update.Message.Chat.ID
-	//
-	//		// Текст сообщения
-	//		Text := update.Message.Text
-	//
-	//		log.Printf("[%s] %d %s", UserName, ChatID, Text)
-	//
-	//		// Ответим пользователю его же сообщением
-	//		reply := Text
-	//		// Созадаем сообщение
-	//		msg := tgbotapi.NewMessage(ChatID, reply)
-	//		// и отправляем его
-	//		bot.SendMessage(msg)
-	//	}
-	//
-	//}
 }
 
 func parseResult(result *[]analyse.AnalyzeResponse) string {
 	var line string
 	for _, element := range *result {
-		line += fmt.Sprintf("Interval: %s Name: %s Result: %s \n", element.Interval, element.Name, element.Result)
+		line += fmt.Sprintf("Name: %s Result: %s \n", element.Name, element.Result)
 	}
 	return line
 }
-
-//func readChat(bot *BotAPI) {
-//	for {
-//		select {
-//		case update := <-bot.Updates:
-//			// Пользователь, который написал боту
-//			UserName := update.Message.From.UserName
-//
-//			// ID чата/диалога.
-//			// Может быть идентификатором как чата с пользователем
-//			// (тогда он равен UserID) так и публичного чата/канала
-//			ChatID := update.Message.Chat.ID
-//
-//			// Текст сообщения
-//			Text := update.Message.Text
-//
-//			log.Printf("[%s] %d %s", UserName, ChatID, Text)
-//
-//			// Ответим пользователю его же сообщением
-//			reply := Text
-//			// Созадаем сообщение
-//			msg := tgbotapi.NewMessage(ChatID, reply)
-//			// и отправляем его
-//			bot.SendMessage(msg)
-//		}
-//
-//	}
-//}
