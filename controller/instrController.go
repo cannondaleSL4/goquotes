@@ -13,7 +13,7 @@ import (
 )
 
 type FormAction struct {
-	LastWeek, LastMonth, LastYear, For10Years, AnalyseD, AnalyseW string
+	LastWeek, LastMonth, LastYear, For10Years, Analyse4H, AnalyseD, AnalyseW string
 }
 
 var FormActionVar = FormAction{
@@ -21,6 +21,7 @@ var FormActionVar = FormAction{
 	LastMonth:  "Last M",
 	LastYear:   "Last Y",
 	For10Years: "For 10Y",
+	Analyse4H:  "Analyse 4H",
 	AnalyseD:   "Analyse D",
 	AnalyseW:   "Analyse W",
 }
@@ -89,12 +90,16 @@ func parseForm(r *http.Request, instr string, data ViewData) ViewData {
 		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -10*364), instr, tinkoff.CandleInterval1Hour)
 		saveToDataBase(*arrayOfCandle)
 		data.ResultUpdate = "Updated"
+	} else if r.FormValue(FormActionVar.Analyse4H) != "" {
+		var result *[]analyse.AnalyzeResponse
+		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -7), instr, tinkoff.CandleInterval1Hour)
+		result = analyse.GetAnalyse(arrayOfCandle, tinkoff.CandleInterval4Hour)
+		if result != nil {
+			data.ResultAnalyse = *result
+			log.Printf("Analyse for Days has been executed.")
+		}
 	} else if r.FormValue(FormActionVar.AnalyseD) != "" {
 		var result *[]analyse.AnalyzeResponse
-		//go func() {
-		//	arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -364), instr, tinkoff.CandleInterval1Day)
-		//	result = analyse.GetAnalyse(arrayOfCandle, tinkoff.CandleInterval1Day)
-		//}()
 		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -364), instr, tinkoff.CandleInterval1Day)
 		arrayOfCandle = makeSlice(arrayOfCandle)
 		result = analyse.GetAnalyse(arrayOfCandle, tinkoff.CandleInterval1Day)

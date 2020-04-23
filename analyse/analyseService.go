@@ -43,11 +43,16 @@ func GetAnalyse(arrayOfQuotes *[][]tinkoff.Candle, interval tinkoff.CandleInterv
 		}
 
 		var result *AnalyzeResponse
+		var resultWarning *AnalyzeResponse
 		result = getRsi(*series, element[0].FIGI, interval)
-
+		resultWarning = getRsiWarning(*series, element[0].FIGI, interval)
 		//getWilliams(*series, element[0].FIGI, interval)
 		if result != nil {
 			results = append(results, *result)
+		}
+
+		if resultWarning != nil {
+			results = append(results, *resultWarning)
 		}
 	}
 
@@ -78,9 +83,9 @@ func getRsi(series techan.TimeSeries, name string, interval tinkoff.CandleInterv
 				var result AnalyzeResponse
 				result.Indicator = "Rsi"
 				result.Interval = string(interval)
-				result.Name = fmt.Sprintf("(%s) %s", constants.GetFigiByName(name), name)
+				result.Name = fmt.Sprintf("(%s) %s", constants.GetFigiByName(name), cutName(name))
 				result.Result = "Buy"
-				result.Description = fmt.Sprintf("preRsi: %f , lastRsi: %f", preLast, last)
+				result.Description = fmt.Sprintf("preRsi: %d , lastRsi: %d", int64(preLast), int(last))
 				log.Printf("result of analyse for indicator %s, for instrument %s . preRsi: %f , lastRsi: %f , result: %s", "Rsi",
 					name, preLast, last, "Buy")
 				return &result
@@ -88,6 +93,35 @@ func getRsi(series techan.TimeSeries, name string, interval tinkoff.CandleInterv
 		}
 	}
 	return nil
+}
+
+func getRsiWarning(series techan.TimeSeries, name string, interval tinkoff.CandleInterval) *AnalyzeResponse {
+	name = constants.GetQuoteNameByFigi(name)
+	var arrayClose []float64
+
+	for _, element := range series.Candles {
+		arrayClose = append(arrayClose, element.ClosePrice.Float())
+	}
+	rsi := talib.Rsi(arrayClose, 14)
+	slice_rsi := rsi[len(rsi)-5:]
+	last := slice_rsi[len(slice_rsi)-1]
+	if last < 30 {
+		var result AnalyzeResponse
+		result.Indicator = "Rsi"
+		result.Interval = string(interval)
+		result.Name = fmt.Sprintf("(%s) %s", constants.GetFigiByName(name), cutName(name))
+		result.Result = "Buy Warning"
+		result.Description = fmt.Sprintf("last RSI :%d", int64(last))
+		return &result
+	}
+	return nil
+}
+
+func cutName(name string) string {
+	if len(name) > 15 {
+		return name[:15]
+	}
+	return name
 }
 
 func getWilliams(series techan.TimeSeries) bool {
