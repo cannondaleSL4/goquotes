@@ -153,23 +153,30 @@ func GetCandle(fromTime time.Time, instr string, interval tinkoff.CandleInterval
 }
 
 func splitHoursDate(fromTime time.Time, instr string, interval tinkoff.CandleInterval) *[]time.Time {
-	var arrayOfDate []time.Time
 	toTime := time.Now()
+	var arrayOfDate []time.Time
 
-	fromTime = roundOfTheHour(fromTime)
-	toTime = roundOfTheHour(toTime)
-
-	diff := int(toTime.Sub(fromTime).Hours() / 24)
-
-	for i := 0; i < diff; i = i + 6 {
-		arrayOfDate = append(arrayOfDate, fromTime.AddDate(0, 0, +i))
-	}
-
-	if arrayOfDate[len(arrayOfDate)-1] != toTime {
-		arrayOfDate = append(arrayOfDate, toTime)
-	}
-
+	arrayOfDate = append(arrayOfDate, fromTime)
+	arrayOfDate = append(arrayOfDate, toTime)
 	return &arrayOfDate
+
+	//var arrayOfDate []time.Time
+	//toTime := time.Now()
+	//
+	//fromTime = roundOfTheHour(fromTime)
+	//toTime = roundOfTheHour(toTime)
+	//
+	//diff := int(toTime.Sub(fromTime).Hours() / 24)
+	//
+	//for i := 0; i < diff; i = i + 6 {
+	//	arrayOfDate = append(arrayOfDate, fromTime.AddDate(0, 0, +i))
+	//}
+	//
+	//if arrayOfDate[len(arrayOfDate)-1] != toTime {
+	//	arrayOfDate = append(arrayOfDate, toTime)
+	//}
+	//
+	//return &arrayOfDate
 }
 
 func splitDaysData(fromTime time.Time, instr string, interval tinkoff.CandleInterval) *[]time.Time {
