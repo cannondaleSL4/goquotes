@@ -4,7 +4,6 @@ import (
 	tinkoff "github.com/TinkoffCreditSystems/invest-openapi-go-sdk"
 	"github.com/goquotes/analyse"
 	. "github.com/goquotes/constants"
-	clientDb "github.com/goquotes/mongodbService"
 	requestService "github.com/goquotes/request"
 	"html/template"
 	"log"
@@ -76,19 +75,19 @@ func parseForm(r *http.Request, instr string, data ViewData) ViewData {
 	fromTime := time.Now()
 	if r.FormValue(FormActionVar.LastWeek) != "" {
 		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -7), instr, tinkoff.CandleInterval1Hour)
-		saveToDataBase(*arrayOfCandle)
+		//saveToDataBase(*arrayOfCandle)
 		data.ResultUpdate = "Updated"
 	} else if r.FormValue(FormActionVar.LastMonth) != "" {
 		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, -1, 0), instr, tinkoff.CandleInterval1Hour)
-		saveToDataBase(*arrayOfCandle)
+		//saveToDataBase(*arrayOfCandle)
 		data.ResultUpdate = "Updated"
 	} else if r.FormValue(FormActionVar.LastYear) != "" {
 		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -364), instr, tinkoff.CandleInterval1Hour)
-		saveToDataBase(*arrayOfCandle)
+		//saveToDataBase(*arrayOfCandle)
 		data.ResultUpdate = "Updated"
 	} else if r.FormValue(FormActionVar.For10Years) != "" {
 		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -10*364), instr, tinkoff.CandleInterval1Hour)
-		saveToDataBase(*arrayOfCandle)
+		//saveToDataBase(*arrayOfCandle)
 		data.ResultUpdate = "Updated"
 	} else if r.FormValue(FormActionVar.Analyse4H) != "" {
 		var result *[]analyse.AnalyzeResponse
@@ -210,14 +209,14 @@ func getQuotes(arrayOfDate []time.Time, toTime time.Time, instr string, interval
 	return &arrayOfCandle
 }
 
-func saveToDataBase(entityFromServer [][]tinkoff.Candle) {
-	connection := clientDb.GetClient()
-	clientDb.InsertConst(connection)
-
-	if entityFromServer != nil {
-		clientDb.InsertNewQuotes(connection, entityFromServer)
-	}
-}
+//func saveToDataBase(entityFromServer [][]tinkoff.Candle) {
+//	connection := clientDb.GetClient()
+//	clientDb.InsertConst(connection)
+//
+//	if entityFromServer != nil {
+//		clientDb.InsertNewQuotes(connection, entityFromServer)
+//	}
+//}
 
 func roundOfTheHour(t time.Time) time.Time {
 	year, month, day := t.Date()
