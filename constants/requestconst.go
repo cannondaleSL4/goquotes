@@ -36,7 +36,6 @@ var QuotesMapDJ = []map[string]string{
 	{FIGI: "BBG000BPD168", Ticker: "MRK", Name: "Merck & Co."},
 	{FIGI: "BBG000BJ81C1", Ticker: "TRV", Name: "Travelers Cos"},
 	{FIGI: "BBG000BWXBC2", Ticker: "WMT", Name: "Wal-Mart Stores"},
-	{FIGI: "BBG000BW8S60", Ticker: "UTX", Name: "United Technologies"},
 	{FIGI: "BBG000BKZB36", Ticker: "HD", Name: "The Home Depot"},
 	{FIGI: "BBG000HS77T5", Ticker: "VZ", Name: "Verizon Communications"},
 	{FIGI: "BBG000C3J3C9", Ticker: "CSCO", Name: "Cisco"},
@@ -339,7 +338,6 @@ var QuotesMapRUS = []map[string]string{
 	{FIGI: "BBG004S684M6", Ticker: "SIBN", Name: "Газпром нефть"},
 	{FIGI: "BBG004S681M2", Ticker: "SNGSP", Name: "Сургутнефтегаз - привилегированные акции"},
 	{FIGI: "BBG000R607Y3", Ticker: "PLZL", Name: "Полюс Золото"},
-	{FIGI: "BBG000NLCCM3", Ticker: "LSNGP", Name: "Ленэнерго - акции привилегированные"},
 	{FIGI: "BBG004RVFFC0", Ticker: "TATN", Name: "Татнефть"},
 	{FIGI: "BBG00475K6C3", Ticker: "CHMF", Name: "Северсталь"},
 	{FIGI: "BBG004S681B4", Ticker: "NLMK", Name: "НЛМК"},
@@ -349,7 +347,6 @@ var QuotesMapRUS = []map[string]string{
 	{FIGI: "BBG004S68B31", Ticker: "ALRS", Name: "АЛРОСА"},
 	{FIGI: "BBG008F2T3T2", Ticker: "RUAL", Name: "РУСАЛ"},
 	{FIGI: "BBG004S68507", Ticker: "MAGN", Name: "Магнитогорский металлургический комбинат"},
-	{FIGI: "BBG00J5LMW10", Ticker: "ENPL", Name: "ГДР En+ Group"},
 }
 
 func GetQuotesDJ() []string {

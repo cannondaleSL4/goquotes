@@ -95,7 +95,7 @@ func parseForm(r *http.Request, instr string, data ViewData) ViewData {
 		result = analyse.GetAnalyse(arrayOfCandle, tinkoff.CandleInterval4Hour)
 		if result != nil {
 			data.ResultAnalyse = *result
-			log.Printf("Analyse for Days has been executed.")
+			log.Printf("Analyse for 4 hours has been executed.")
 		}
 	} else if r.FormValue(FormActionVar.AnalyseD) != "" {
 		var result *[]analyse.AnalyzeResponse
@@ -152,30 +152,24 @@ func GetCandle(fromTime time.Time, instr string, interval tinkoff.CandleInterval
 }
 
 func splitHoursDate(fromTime time.Time, instr string, interval tinkoff.CandleInterval) *[]time.Time {
-	toTime := time.Now()
+
 	var arrayOfDate []time.Time
+	toTime := time.Now()
 
-	arrayOfDate = append(arrayOfDate, fromTime)
-	arrayOfDate = append(arrayOfDate, toTime)
+	fromTime = roundOfTheHour(fromTime)
+	toTime = roundOfTheHour(toTime)
+
+	diff := int(toTime.Sub(fromTime).Hours() / 24)
+
+	for i := 0; i < diff; i = i + 6 {
+		arrayOfDate = append(arrayOfDate, checkWeekEnd(fromTime.AddDate(0, 0, +i)))
+	}
+
+	if arrayOfDate[len(arrayOfDate)-1] != toTime {
+		arrayOfDate = append(arrayOfDate, toTime)
+	}
+
 	return &arrayOfDate
-
-	//var arrayOfDate []time.Time
-	//toTime := time.Now()
-	//
-	//fromTime = roundOfTheHour(fromTime)
-	//toTime = roundOfTheHour(toTime)
-	//
-	//diff := int(toTime.Sub(fromTime).Hours() / 24)
-	//
-	//for i := 0; i < diff; i = i + 6 {
-	//	arrayOfDate = append(arrayOfDate, fromTime.AddDate(0, 0, +i))
-	//}
-	//
-	//if arrayOfDate[len(arrayOfDate)-1] != toTime {
-	//	arrayOfDate = append(arrayOfDate, toTime)
-	//}
-	//
-	//return &arrayOfDate
 }
 
 func splitDaysData(fromTime time.Time, instr string, interval tinkoff.CandleInterval) *[]time.Time {
@@ -222,4 +216,17 @@ func roundOfTheHour(t time.Time) time.Time {
 	year, month, day := t.Date()
 	hour, _, _ := t.Clock()
 	return time.Date(year, month, day, hour, 0, 0, 0, t.Location())
+}
+
+func checkWeekEnd(t time.Time) time.Time {
+	if t.Weekday() == 0 {
+		tempDate := t.AddDate(0, 0, -2)
+		year, month, day := tempDate.Date()
+		return time.Date(year, month, day, 0, 0, 0, 0, t.Location())
+	} else if t.Weekday() == 6 {
+		tempDate := t.AddDate(0, 0, -1)
+		year, month, day := tempDate.Date()
+		return time.Date(year, month, day, 0, 0, 0, 0, t.Location())
+	}
+	return t
 }
