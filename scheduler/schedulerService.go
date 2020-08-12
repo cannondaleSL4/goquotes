@@ -3,8 +3,8 @@ package scheduler
 import (
 	"flag"
 	"fmt"
-	"github.com/Syfaro/telegram-bot-api"
 	tinkoff "github.com/TinkoffCreditSystems/invest-openapi-go-sdk"
+	"github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/goquotes/analyse"
 	"github.com/goquotes/constants"
 	"github.com/goquotes/controller"

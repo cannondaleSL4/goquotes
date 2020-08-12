@@ -44,8 +44,10 @@ func GetAnalyse(arrayOfQuotes *[][]tinkoff.Candle, interval tinkoff.CandleInterv
 
 		var result *AnalyzeResponse
 		var resultWarning *AnalyzeResponse
-		result = getRsi(*series, element[0].FIGI, interval)
-		resultWarning = getRsiWarning(*series, element[0].FIGI, interval)
+		var resultExtremum *AnalyzeResponse
+		//result = getRsi(*series, element[0].FIGI, interval)
+		//resultWarning = getRsiWarning(*series, element[0].FIGI, interval)
+		resultExtremum = getExtremum(*series, element[0].FIGI, interval)
 		//getWilliams(*series, element[0].FIGI, interval)
 		if result != nil {
 			results = append(results, *result)
@@ -53,6 +55,10 @@ func GetAnalyse(arrayOfQuotes *[][]tinkoff.Candle, interval tinkoff.CandleInterv
 
 		if resultWarning != nil {
 			results = append(results, *resultWarning)
+		}
+
+		if resultExtremum != nil {
+			results = append(results, *resultExtremum)
 		}
 	}
 
@@ -91,6 +97,29 @@ func getRsi(series techan.TimeSeries, name string, interval tinkoff.CandleInterv
 				return &result
 			}
 		}
+	}
+	return nil
+}
+
+func getExtremum(series techan.TimeSeries, name string, interval tinkoff.CandleInterval) *AnalyzeResponse {
+	name = constants.GetQuoteNameByFigi(name)
+	var arrayClose []float64
+	var result AnalyzeResponse
+	for _, element := range series.Candles {
+		arrayClose = append(arrayClose, element.ClosePrice.Float())
+	}
+
+	arrayClose = arrayClose[len(arrayClose)-7:]
+
+	first := arrayClose[0]
+	last := arrayClose[len(arrayClose)-1]
+	persent := (float32(first) - float32(last)) / 100
+	if persent > 0.05 {
+		result.Indicator = "Extremum"
+		result.Interval = string(interval)
+		result.Name = fmt.Sprintf("(%s) %s", constants.GetFigiByName(name), cutName(name))
+		result.Description = fmt.Sprintf("Drop :%f", persent)
+		return &result
 	}
 	return nil
 }
