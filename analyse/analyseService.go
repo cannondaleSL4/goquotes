@@ -118,7 +118,7 @@ func getExtremum(series techan.TimeSeries, name string, interval tinkoff.CandleI
 		result.Indicator = "Extremum"
 		result.Interval = string(interval)
 		result.Name = fmt.Sprintf("(%s) %s", constants.GetFigiByName(name), cutName(name))
-		result.Description = fmt.Sprintf("Drop :%f", persent)
+		result.Description = fmt.Sprintf("Drop: %.2f %%", persent)
 		return &result
 	}
 	return nil
