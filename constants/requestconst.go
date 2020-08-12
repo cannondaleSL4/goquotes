@@ -415,3 +415,13 @@ func GetFigiByName(name string) string {
 	log.Printf("Unknown element name: %s", name)
 	return ""
 }
+
+func GetInterval(interval tinkoff.CandleInterval) int {
+	if interval == tinkoff.CandleInterval1Day {
+		return 24
+	} else if interval == tinkoff.CandleInterval4Hour {
+		return 4
+	} else {
+		return 24 * 7
+	}
+}
