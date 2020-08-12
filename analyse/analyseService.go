@@ -21,13 +21,6 @@ type AnalyzeResponse struct {
 
 func GetAnalyse(arrayOfQuotes *[][]tinkoff.Candle, interval tinkoff.CandleInterval) *[]AnalyzeResponse {
 	hours := constants.GetInterval(interval)
-	//if interval == tinkoff.CandleInterval1Day {
-	//	hours = 24
-	//} else if interval == tinkoff.CandleInterval4Hour {
-	//	hours = 4
-	//} else if interval == tinkoff.CandleInterval1Week {
-	//	hours = 24 * 7
-	//}
 
 	var results []AnalyzeResponse
 	for _, element := range *arrayOfQuotes {
@@ -44,11 +37,9 @@ func GetAnalyse(arrayOfQuotes *[][]tinkoff.Candle, interval tinkoff.CandleInterv
 
 		var result *AnalyzeResponse
 		var resultWarning *AnalyzeResponse
-		var resultExtremum *AnalyzeResponse
-		//result = getRsi(*series, element[0].FIGI, interval)
-		//resultWarning = getRsiWarning(*series, element[0].FIGI, interval)
-		resultExtremum = getExtremum(*series, element[0].FIGI, interval)
-		//getWilliams(*series, element[0].FIGI, interval)
+		result = getRsi(*series, element[0].FIGI, interval)
+		resultWarning = getRsiWarning(*series, element[0].FIGI, interval)
+
 		if result != nil {
 			results = append(results, *result)
 		}

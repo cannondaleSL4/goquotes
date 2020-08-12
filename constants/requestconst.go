@@ -417,11 +417,12 @@ func GetFigiByName(name string) string {
 }
 
 func GetInterval(interval tinkoff.CandleInterval) int {
-	if interval == tinkoff.CandleInterval1Day {
-		return 24
-	} else if interval == tinkoff.CandleInterval4Hour {
-		return 4
-	} else {
-		return 24 * 7
-	}
+
+	mapInterval := make(map[tinkoff.CandleInterval]int)
+	mapInterval[tinkoff.CandleInterval1Day] = 24
+	mapInterval[tinkoff.CandleInterval4Hour] = 4
+	mapInterval[tinkoff.CandleInterval1Week] = 24 * 7
+
+	return mapInterval[interval]
+
 }

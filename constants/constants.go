@@ -34,5 +34,4 @@ var Log = logging.MustGetLogger("main")
 const (
 	DOWJONES = "Dow Jones"
 	RUS      = "RUS"
-	DBNAME   = "quotes"
 )
