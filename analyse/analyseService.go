@@ -37,6 +37,7 @@ func GetAnalyse(arrayOfQuotes *[][]tinkoff.Candle, interval tinkoff.CandleInterv
 
 		var result *AnalyzeResponse
 		var resultWarning *AnalyzeResponse
+		var resultExtremum *AnalyzeResponse
 		result = getRsi(*series, element[0].FIGI, interval)
 		resultWarning = getRsiWarning(*series, element[0].FIGI, interval)
 
