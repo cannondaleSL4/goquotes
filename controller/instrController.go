@@ -66,32 +66,32 @@ func page(w http.ResponseWriter, r *http.Request, data ViewData) {
 		tmpl.Execute(w, &data)
 		return
 	}
-	data = parseForm(r, data.Instrument, data)
+	data = parseForm(r, data)
 	tmpl.Execute(w, &data)
 }
 
-func parseForm(r *http.Request, instr string, data ViewData) ViewData {
+func parseForm(r *http.Request, data ViewData) ViewData {
 	var arrayOfCandle *[][]tinkoff.Candle
 	fromTime := time.Now()
 	if r.FormValue(FormActionVar.LastWeek) != "" {
-		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -7), instr, tinkoff.CandleInterval1Hour)
+		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -7), data.Instrument, tinkoff.CandleInterval1Hour)
 		//saveToDataBase(*arrayOfCandle)
 		data.ResultUpdate = "Updated"
 	} else if r.FormValue(FormActionVar.LastMonth) != "" {
-		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, -1, 0), instr, tinkoff.CandleInterval1Hour)
+		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, -1, 0), data.Instrument, tinkoff.CandleInterval1Hour)
 		//saveToDataBase(*arrayOfCandle)
 		data.ResultUpdate = "Updated"
 	} else if r.FormValue(FormActionVar.LastYear) != "" {
-		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -364), instr, tinkoff.CandleInterval1Hour)
+		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -364), data.Instrument, tinkoff.CandleInterval1Hour)
 		//saveToDataBase(*arrayOfCandle)
 		data.ResultUpdate = "Updated"
 	} else if r.FormValue(FormActionVar.For10Years) != "" {
-		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -10*364), instr, tinkoff.CandleInterval1Hour)
+		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -10*364), data.Instrument, tinkoff.CandleInterval1Hour)
 		//saveToDataBase(*arrayOfCandle)
 		data.ResultUpdate = "Updated"
 	} else if r.FormValue(FormActionVar.Analyse4H) != "" {
 		var result *[]analyse.AnalyzeResponse
-		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -7), instr, tinkoff.CandleInterval1Hour)
+		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -7), data.Instrument, tinkoff.CandleInterval1Hour)
 		result = analyse.GetAnalyse(arrayOfCandle, tinkoff.CandleInterval4Hour)
 		if result != nil {
 			data.ResultAnalyse = *result
@@ -99,7 +99,7 @@ func parseForm(r *http.Request, instr string, data ViewData) ViewData {
 		}
 	} else if r.FormValue(FormActionVar.AnalyseD) != "" {
 		var result *[]analyse.AnalyzeResponse
-		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -364), instr, tinkoff.CandleInterval1Day)
+		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, 0, -364), data.Instrument, tinkoff.CandleInterval1Day)
 		arrayOfCandle = makeSlice(arrayOfCandle)
 		result = analyse.GetAnalyse(arrayOfCandle, tinkoff.CandleInterval1Day)
 		if result != nil {
@@ -108,7 +108,7 @@ func parseForm(r *http.Request, instr string, data ViewData) ViewData {
 		}
 	} else if r.FormValue(FormActionVar.AnalyseW) != "" {
 		var result *[]analyse.AnalyzeResponse
-		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, -23, -20), instr, tinkoff.CandleInterval1Week)
+		arrayOfCandle, _ = GetCandle(fromTime.AddDate(0, -23, -20), data.Instrument, tinkoff.CandleInterval1Week)
 		arrayOfCandle = makeSlice(arrayOfCandle)
 		result = analyse.GetAnalyse(arrayOfCandle, tinkoff.CandleInterval1Week)
 		if result != nil {
